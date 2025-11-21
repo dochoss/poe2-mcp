@@ -1,11 +1,10 @@
 """
 Configuration management for PoE2 Build Optimizer
 """
-import os
 from pathlib import Path
 from typing import List, Optional
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, ConfigDict
 import yaml
 
 
@@ -25,65 +24,54 @@ class Settings(BaseSettings):
     """Application settings loaded from environment and config file"""
 
     # Server
-    HOST: str = Field(default="127.0.0.1", env="HOST")
-    PORT: int = Field(default=8080, env="PORT")
-    DEBUG: bool = Field(default=True, env="DEBUG")
-    ENV: str = Field(default="development", env="ENV")
+    HOST: str = Field(default="127.0.0.1")
+    PORT: int = Field(default=8080)
+    DEBUG: bool = Field(default=True)
+    ENV: str = Field(default="development")
 
     # Database
     DATABASE_URL: str = Field(
-        default=f"sqlite:///{DATA_DIR}/poe2_optimizer.db",
-        env="DATABASE_URL"
+        default=f"sqlite:///{DATA_DIR}/poe2_optimizer.db"
     )
-    DB_POOL_SIZE: int = Field(default=10, env="DB_POOL_SIZE")
-    DB_ECHO: bool = Field(default=False, env="DB_ECHO")
+    DB_POOL_SIZE: int = Field(default=10)
+    DB_ECHO: bool = Field(default=False)
 
     # Redis
-    REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
-    REDIS_ENABLED: bool = Field(default=False, env="REDIS_ENABLED")
+    REDIS_URL: str = Field(default="redis://localhost:6379/0")
+    REDIS_ENABLED: bool = Field(default=False)
 
     # API Configuration
-    POE_CLIENT_ID: Optional[str] = Field(default=None, env="POE_CLIENT_ID")
-    POE_CLIENT_SECRET: Optional[str] = Field(default=None, env="POE_CLIENT_SECRET")
-    POESESSID: Optional[str] = Field(default=None, env="POESESSID")  # Session cookie for trade API
+    # REQUIRED: Trade API authentication (run: python scripts/setup_trade_auth.py)
+    POESESSID: Optional[str] = Field(default=None)
+
+    # OPTIONAL: OAuth credentials (not yet implemented - for future use)
+    # Apply at: https://www.pathofexile.com/developer/docs
+    POE_CLIENT_ID: Optional[str] = Field(default=None)
+    POE_CLIENT_SECRET: Optional[str] = Field(default=None)
 
     # Third-party APIs
-    POE_NINJA_API: str = Field(default="https://poe.ninja/api", env="POE_NINJA_API")
-    POE_NINJA_PROFILE_URL: str = Field(default="https://poe.ninja", env="POE_NINJA_PROFILE_URL")
-    POE_OFFICIAL_API: str = Field(default="https://www.pathofexile.com", env="POE_OFFICIAL_API")
-    TRADE_API_URL: str = Field(default="https://www.pathofexile.com/trade2/search/poe2", env="TRADE_API_URL")
-    REQUEST_TIMEOUT: int = Field(default=30, env="REQUEST_TIMEOUT")
-
-    # AI Configuration
-    AI_PROVIDER: str = Field(default="anthropic", env="AI_PROVIDER")
-    ANTHROPIC_API_KEY: Optional[str] = Field(default=None, env="ANTHROPIC_API_KEY")
-    OPENAI_API_KEY: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
-    AI_MODEL: str = Field(
-        default="claude-sonnet-4-20250514",
-        env="AI_MODEL"
-    )
-    AI_MAX_TOKENS: int = Field(default=4096, env="AI_MAX_TOKENS")
-    AI_TEMPERATURE: float = Field(default=0.7, env="AI_TEMPERATURE")
+    POE_NINJA_API: str = Field(default="https://poe.ninja/api")
+    POE_NINJA_PROFILE_URL: str = Field(default="https://poe.ninja")
+    POE_OFFICIAL_API: str = Field(default="https://www.pathofexile.com")
+    TRADE_API_URL: str = Field(default="https://www.pathofexile.com/trade2/search/poe2")
+    REQUEST_TIMEOUT: int = Field(default=30)
 
     # Rate Limiting
-    POE_API_RATE_LIMIT: int = Field(default=10, env="POE_API_RATE_LIMIT")
-    POE2DB_RATE_LIMIT: int = Field(default=30, env="POE2DB_RATE_LIMIT")
-    ENABLE_CACHING: bool = Field(default=True, env="ENABLE_CACHING")
-    CACHE_TTL: int = Field(default=3600, env="CACHE_TTL")
+    POE_API_RATE_LIMIT: int = Field(default=10)
+    ENABLE_CACHING: bool = Field(default=False)
+    CACHE_TTL: int = Field(default=3600)
 
     # Feature Flags
-    ENABLE_TRADE_INTEGRATION: bool = Field(default=True, env="ENABLE_TRADE_INTEGRATION")
-    ENABLE_POB_EXPORT: bool = Field(default=True, env="ENABLE_POB_EXPORT")
-    ENABLE_AI_INSIGHTS: bool = Field(default=True, env="ENABLE_AI_INSIGHTS")
-    ENABLE_BUILD_SHARING: bool = Field(default=True, env="ENABLE_BUILD_SHARING")
+    ENABLE_TRADE_INTEGRATION: bool = Field(default=True)
+    ENABLE_POB_EXPORT: bool = Field(default=True)
+    ENABLE_BUILD_SHARING: bool = Field(default=True)
 
     # Web Interface
-    WEB_PORT: int = Field(default=3000, env="WEB_PORT")
+    WEB_PORT: int = Field(default=3000)
     CORS_ORIGINS: str = Field(
-        default="http://localhost:3000,http://127.0.0.1:3000",
-        env="CORS_ORIGINS"
+        default="http://localhost:3000,http://127.0.0.1:3000"
     )
-    MAX_SAVED_BUILDS_PER_USER: int = Field(default=50, env="MAX_SAVED_BUILDS_PER_USER")
+    MAX_SAVED_BUILDS_PER_USER: int = Field(default=50)
 
     def get_cors_origins_list(self) -> List[str]:
         """Parse CORS_ORIGINS string into list"""
@@ -92,50 +80,40 @@ class Settings(BaseSettings):
         return self.CORS_ORIGINS
 
     # Logging
-    LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
-    LOG_FILE: str = Field(default="logs/poe2_optimizer.log", env="LOG_FILE")
-    LOG_ROTATION: str = Field(default="100 MB", env="LOG_ROTATION")
-    LOG_RETENTION: str = Field(default="7 days", env="LOG_RETENTION")
+    LOG_LEVEL: str = Field(default="INFO")
+    LOG_FILE: str = Field(default="logs/poe2_optimizer.log")
+    LOG_ROTATION: str = Field(default="100 MB")
+    LOG_RETENTION: str = Field(default="7 days")
 
     # Security
+    # CRITICAL: These must be set via environment variables (.env file)
+    # Generate with: python -c "import secrets; print(secrets.token_hex(32))"
+    # Never commit actual secrets to version control
     SECRET_KEY: str = Field(
-        default="change-in-production",
-        env="SECRET_KEY"
+        ...,  # Required, no default
+        description="Cryptographically secure random key for session management"
     )
     ENCRYPTION_KEY: str = Field(
-        default="change-in-production",
-        env="ENCRYPTION_KEY"
+        ...,  # Required, no default
+        description="Cryptographically secure random key for data encryption"
     )
-    SESSION_TIMEOUT: int = Field(default=86400, env="SESSION_TIMEOUT")
+    SESSION_TIMEOUT: int = Field(default=86400)
 
     # Performance
-    MAX_WORKERS: int = Field(default=4, env="MAX_WORKERS")
-    REQUEST_TIMEOUT: int = Field(default=30, env="REQUEST_TIMEOUT")
-    CALCULATION_TIMEOUT: int = Field(default=10, env="CALCULATION_TIMEOUT")
-
-    # Data Sources
-    POE2DB_BASE_URL: str = Field(
-        default="https://poe2db.tw",
-        env="POE2DB_BASE_URL"
-    )
-    POE_NINJA_BASE_URL: str = Field(
-        default="https://poe.ninja",
-        env="POE_NINJA_BASE_URL"
-    )
-    POE_OFFICIAL_API: str = Field(
-        default="https://www.pathofexile.com/api",
-        env="POE_OFFICIAL_API"
-    )
+    MAX_WORKERS: int = Field(default=4)
+    REQUEST_TIMEOUT: int = Field(default=30)
+    CALCULATION_TIMEOUT: int = Field(default=10)
 
     # Monitoring
-    SENTRY_DSN: Optional[str] = Field(default=None, env="SENTRY_DSN")
-    PROMETHEUS_ENABLED: bool = Field(default=False, env="PROMETHEUS_ENABLED")
-    PROMETHEUS_PORT: int = Field(default=9090, env="PROMETHEUS_PORT")
+    SENTRY_DSN: Optional[str] = Field(default=None)
+    PROMETHEUS_ENABLED: bool = Field(default=False)
+    PROMETHEUS_PORT: int = Field(default=9090)
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True
+    )
 
 
 def load_yaml_config(config_path: str = "config.yaml") -> dict:
