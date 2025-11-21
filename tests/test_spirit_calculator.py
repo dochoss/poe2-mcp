@@ -172,7 +172,7 @@ class TestSpiritReservation(unittest.TestCase):
         breakdown = res.get_cost_breakdown()
         self.assertEqual(breakdown['base_cost'], 25)
         self.assertEqual(breakdown['final_cost'], 49)
-        self.assertEqual(breakdown['total_multiplier'], 1.95)
+        self.assertAlmostEqual(breakdown['total_multiplier'], 1.95, places=10)
         self.assertEqual(len(breakdown['support_gems']), 2)
 
 
