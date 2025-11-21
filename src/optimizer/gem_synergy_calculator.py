@@ -136,9 +136,9 @@ class GemSynergyCalculator:
 
         # Default paths
         if spell_db_path is None:
-            spell_db_path = Path(__file__).parent.parent.parent / "poe2_spell_gems_database.json"
+            spell_db_path = Path(__file__).parent.parent.parent / "data" / "poe2_spell_gems_database.json"
         if support_db_path is None:
-            support_db_path = Path(__file__).parent.parent.parent / "poe2_support_gems_database.json"
+            support_db_path = Path(__file__).parent.parent.parent / "data" / "poe2_support_gems_database.json"
 
         # Load databases
         self._load_spell_database(spell_db_path)

@@ -1,0 +1,20 @@
+# CODEOWNERS - Defines code ownership for automatic review requests
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owner - ALL files require approval from repository owner
+* @HivemindOverlord
+
+# Critical files - Extra scrutiny required
+/.github/ @HivemindOverlord
+/src/mcp_server.py @HivemindOverlord
+/src/config.py @HivemindOverlord
+/requirements.txt @HivemindOverlord
+/config.yaml @HivemindOverlord
+
+# Database schema changes - Requires careful review
+/src/database/models.py @HivemindOverlord
+/alembic/ @HivemindOverlord
+
+# Security-sensitive components
+/src/api/trade_api.py @HivemindOverlord
+/scripts/setup_trade_auth.py @HivemindOverlord

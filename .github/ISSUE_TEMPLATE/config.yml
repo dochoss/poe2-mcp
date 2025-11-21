@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/HivemindOverlord/poe2-mcp/discussions
+    about: Ask questions or discuss ideas (use Discussions, not Issues)
+  - name: Contributing Guidelines
+    url: https://github.com/HivemindOverlord/poe2-mcp/blob/main/CONTRIBUTING.md
+    about: Read before submitting pull requests
