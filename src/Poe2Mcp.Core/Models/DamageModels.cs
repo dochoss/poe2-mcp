@@ -120,18 +120,13 @@ public class DamageComponents
     /// </summary>
     public void AddDamage(DamageType damageType, DamageRange damageRange)
     {
-        if (DamageByType.TryGetValue(damageType, out var existing))
-        {
-            DamageByType[damageType] = new DamageRange
-            {
-                MinDamage = existing.MinDamage + damageRange.MinDamage,
-                MaxDamage = existing.MaxDamage + damageRange.MaxDamage
-            };
-        }
-        else
-        {
-            DamageByType[damageType] = damageRange;
-        }
+        DamageByType[damageType] = DamageByType.TryGetValue(damageType, out var existing)
+            ? new DamageRange
+                {
+                    MinDamage = existing.MinDamage + damageRange.MinDamage,
+                    MaxDamage = existing.MaxDamage + damageRange.MaxDamage
+                }
+            : damageRange;
     }
 }
 
