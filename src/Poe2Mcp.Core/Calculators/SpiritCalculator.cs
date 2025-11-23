@@ -391,11 +391,17 @@ public class SpiritCalculator : ISpiritCalculator
         
         foreach (var reservation in sortedReservations)
         {
-            var cost = reservation.CalculateCost();
+            // Calculate cost independently of Enabled state
+            double cost = reservation.BaseCost;
+            foreach (var gem in reservation.SupportGems)
+            {
+                cost *= gem.Multiplier;
+            }
+            cost = Math.Round(cost); // If costs are expected to be integer
             if (spiritUsed + cost <= maxSpirit)
             {
                 enabledReservations.Add(reservation.Name);
-                spiritUsed += cost;
+                spiritUsed += (int)cost;
             }
             else
             {
