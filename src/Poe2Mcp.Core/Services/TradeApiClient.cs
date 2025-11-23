@@ -126,7 +126,7 @@ public class TradeApiClient : ITradeApiClient
             _logger.LogInformation("Found {Count} items, fetching details...", resultIds.Count);
 
             // Add delay between requests
-            await Task.Delay(500, cancellationToken);
+            await Task.Delay(_options.RequestDelayMilliseconds, cancellationToken);
 
             // Fetch item details
             var items = await FetchItemDetailsAsync(resultIds, queryId, cancellationToken);
