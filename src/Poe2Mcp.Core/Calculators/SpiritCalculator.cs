@@ -467,17 +467,6 @@ public class SpiritCalculator : ISpiritCalculator
             issues.Add("No Spirit sources configured (maximum Spirit is 0)");
         }
         
-        // Check for reservations with no support gems but high costs
-        foreach (var reservation in _reservations)
-        {
-            if (reservation.BaseCost > 50 && reservation.SupportGems.Count == 0)
-            {
-                issues.Add(
-                    $"'{reservation.Name}' has high base cost ({reservation.BaseCost}) " +
-                    "but no support gems - verify this is correct");
-            }
-        }
-        
         var isValid = issues.Count == 0;
         return (isValid, issues);
     }
