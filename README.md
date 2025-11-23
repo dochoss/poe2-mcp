@@ -1,448 +1,201 @@
-# Path of Exile 2 Build Optimizer MCP
+# Path of Exile 2 Build Optimizer MCP - C# Edition
 
-A comprehensive Model Context Protocol (MCP) server and web application for Path of Exile 2 character optimization, featuring AI-powered build recommendations, local game database, and intelligent upgrade suggestions.
+A comprehensive Model Context Protocol (MCP) server for Path of Exile 2 character optimization, featuring AI-powered build recommendations and intelligent upgrade suggestions.
 
 ## Overview
 
-This project combines the power of MCP servers, AI analysis, and comprehensive PoE2 game knowledge to provide players with intelligent, personalized build recommendations through natural language interaction.
+This is the C# .NET 10 version of the PoE2 Build Optimizer MCP server. The original Python implementation can be found in the `poe2-mcp-python` directory.
 
-## Key Features
+### Key Features
 
-### MCP Server
-- **Character Data Fetcher**: Pulls character information via official PoE API
-- **Natural Language Interface**: Ask questions like "How can I increase my lightning damage?"
+- **MCP Server**: Full implementation using ModelContextProtocol NuGet package
+- **Character Analysis**: Fetch and analyze character data from PoE API
 - **Build Optimization**: AI-powered recommendations for gear, passives, and skills
-- **Rate-Limited API**: Respectful API usage with intelligent caching
+- **EHP Calculator**: Accurate Effective Health Pool calculations
+- **Spirit System**: Analysis of PoE2's Spirit mechanic
+- **Damage Calculations**: Comprehensive DPS breakdowns
+- **Trade Integration**: Search for gear upgrades on the official trade site
+- **AI Integration**: Natural language queries using Microsoft.Extensions.AI
 
-### Local Game Database
-- Complete item database (bases, modifiers, uniques)
-- Passive skill tree data (nodes, connections, keystones)
-- Skill gems and support interactions
-- Ascendancy classes and notables
-- Crafting bench options and influenced modifiers
+## Technology Stack
 
-### AI-Powered Features
-- Natural language build queries
-- Goal-based optimization (DPS, survivability, boss killing, clear speed)
-- Trade-off analysis
-- Budget-aware recommendations (low/medium/high/unlimited)
-- Meta comparison and trends
-
-### Build Calculator
-- Accurate DPS calculations with all modifiers
-- Defense analysis (EHP, mitigation, avoidance)
-- Damage breakdown by type
-- Skill interaction calculations
-- Curse and aura effectiveness
-
-### Web Interface
-- Character import via account/character name
-- Visual passive tree with optimization highlights
-- Gear slot recommendations with trade links
-- Build sharing and saving
-- Real-time calculation updates
-
-### Path of Building Integration
-- Import PoB build codes
-- Export optimized builds to PoB format
-- Sync with PoB's calculation engine
-- Support for PoB Community Fork features
+- **.NET 10** (LTS Release)
+- **C# 14**
+- **ModelContextProtocol** - Official MCP SDK for .NET
+- **Entity Framework Core 10** - Database ORM
+- **Microsoft.Extensions.Hosting** - Dependency injection and hosting
+- **Microsoft.Extensions.AI** - AI service integration
+- **SQLite** - Local database storage
+- **xUnit** - Testing framework
 
 ## Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- Node.js 18+ (for web interface)
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
 - Git
 
 ### Installation
 
 ```bash
 # Clone the repository
-cd ClaudesPathOfExile2EnhancementService
+git clone https://github.com/dochoss/poe2-mcp.git
+cd poe2-mcp
 
-# Install Python dependencies
-pip install -r requirements.txt
+# Restore NuGet packages
+dotnet restore
 
-# Install Node dependencies for web interface
-cd web
-npm install
-cd ..
+# Build the solution
+dotnet build
 
-# Initialize the database
-python scripts/init_database.py
-
-# Seed with game data from poe2db.tw
-python scripts/seed_game_data.py
-
-# Set up trade API authentication (required for item search)
-pip install playwright
-playwright install chromium
-python scripts/setup_trade_auth.py
+# Run the MCP server
+cd src/Poe2Mcp.Server
+dotnet run
 ```
 
-### Running the Server
+### Configuration
 
-```bash
-# Start the MCP server
-python src/mcp_server.py
+Configuration is managed via `appsettings.json`:
 
-# In a separate terminal, start the web interface
-cd web
-npm run dev
-```
-
-Access the web interface at `http://localhost:3000`
-
-## Trade API Authentication
-
-The MCP server can search the official Path of Exile trade site to recommend gear upgrades. This requires authentication to prevent bot abuse.
-
-### Automated Setup (Recommended - 2 Minutes)
-
-```bash
-# Install Playwright (one-time setup)
-pip install playwright
-playwright install chromium
-
-# Run the authentication helper
-python scripts/setup_trade_auth.py
-```
-
-**What happens:**
-1. Browser opens to pathofexile.com/trade
-2. You log in with your account (supports 2FA)
-3. Script automatically detects login and extracts your session cookie
-4. Cookie is saved to `.env` file
-5. Done! Trade search now works
-
-**See `TRADE_AUTH_SETUP_GUIDE.md` for:**
-- Detailed step-by-step guide
-- Troubleshooting common issues
-- Security information
-- Cookie expiration details
-
-### Manual Setup (Fallback)
-
-If the automated method doesn't work:
-
-1. Visit https://www.pathofexile.com/trade in your browser
-2. Log in to your account
-3. Press F12 to open DevTools
-4. Go to Application → Cookies → pathofexile.com
-5. Find the `POESESSID` cookie
-6. Copy its value (32-character string)
-7. Add to your `.env` file: `POESESSID=your_cookie_value_here`
-
-## Usage
-
-### Via Web Interface
-
-1. Navigate to `http://localhost:3000`
-2. Enter your account name and character name
-3. Click "Analyze Character"
-4. Review recommendations and optimization suggestions
-
-### Via MCP Protocol
-
-```python
-from mcp_client import PoE2MCPClient
-
-async with PoE2MCPClient() as client:
-    # Analyze character
-    analysis = await client.analyze_character(
-        account="YourAccount",
-        character="YourCharacter"
-    )
-
-    # Get natural language recommendations
-    response = await client.query(
-        "How can I improve my boss damage while staying tanky?"
-    )
-
-    print(response)
-```
-
-### Via Command Line
-
-```bash
-# Quick character analysis
-python cli.py analyze --account YourAccount --character YourCharacter
-
-# Natural language query
-python cli.py query "What gear upgrades should I prioritize?"
-
-# Build comparison
-python cli.py compare build1.json build2.json
-
-# Export to Path of Building
-python cli.py export --account YourAccount --character YourCharacter --output build.pob
-```
-
-## Architecture
-
-### Core Components
-
-```
-src/
-├── mcp_server.py           # Main MCP server
-├── api/
-│   ├── poe_api.py          # Official PoE API client
-│   ├── poe2db_scraper.py   # poe2db.tw data scraper
-│   ├── rate_limiter.py     # API rate limiting
-│   └── cache_manager.py    # Multi-tier caching
-├── database/
-│   ├── models.py           # SQLAlchemy models
-│   ├── manager.py          # Database manager
-│   └── migrations/         # Alembic migrations
-├── calculator/
-│   ├── damage_calc.py      # DPS calculations
-│   ├── defense_calc.py     # Defense calculations
-│   ├── modifier_calc.py    # Modifier calculations
-│   └── build_scorer.py     # Build quality scoring
-├── optimizer/
-│   ├── gear_optimizer.py   # Gear optimization
-│   ├── passive_optimizer.py # Passive tree optimization
-│   ├── skill_optimizer.py  # Skill setup optimization
-│   └── trade_advisor.py    # Trade recommendations
-├── ai/
-│   ├── query_handler.py    # Natural language processing
-│   ├── recommendation_engine.py # AI recommendations
-│   └── context_manager.py  # Conversation context
-└── pob/
-    ├── importer.py         # PoB import
-    ├── exporter.py         # PoB export
-    └── xml_parser.py       # PoB XML handling
-```
-
-### Web Interface
-
-```
-web/
-├── src/
-│   ├── components/
-│   │   ├── CharacterImporter.tsx
-│   │   ├── PassiveTree.tsx
-│   │   ├── GearRecommendations.tsx
-│   │   ├── BuildComparison.tsx
-│   │   └── NLQueryInterface.tsx
-│   ├── api/
-│   │   └── client.ts       # API client
-│   ├── state/
-│   │   └── store.ts        # State management
-│   └── utils/
-│       └── calculations.ts  # Client-side calcs
-├── public/
-│   └── assets/             # Static assets
-└── package.json
-```
-
-## Database Schema
-
-### Core Tables
-
-- **items**: All item bases and types
-- **modifiers**: Item modifiers and their values
-- **passive_nodes**: Passive tree nodes
-- **passive_connections**: Tree node connections
-- **skills**: Skill gems data
-- **supports**: Support gem data
-- **uniques**: Unique item data
-- **ascendancies**: Ascendancy classes
-- **crafting**: Crafting bench recipes
-
-### User Tables
-
-- **saved_builds**: User-saved builds
-- **build_snapshots**: Historical build versions
-- **optimization_history**: Past optimizations
-
-## API Integration
-
-### Official PoE API
-
-- Character data retrieval
-- Account information
-- Ladder rankings (with rate limiting)
-- Stash tab data (optional)
-
-### Rate Limiting Strategy
-
-```python
-# Configurable rate limits
-RATE_LIMITS = {
-    'official_api': {
-        'requests_per_minute': 10,
-        'burst': 3,
-        'backoff': 'exponential'
-    },
-    'poe2db': {
-        'requests_per_minute': 30,
-        'cache_duration': 3600  # 1 hour
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning"
     }
+  },
+  "McpServer": {
+    "Name": "poe2-build-optimizer",
+    "Version": "1.0.0"
+  },
+  "Database": {
+    "ConnectionString": "Data Source=poe2_optimizer.db"
+  },
+  "AI": {
+    "Provider": "Anthropic",
+    "Model": "claude-sonnet-4-20250514"
+  }
 }
 ```
 
-### Caching Strategy
+Create an `appsettings.Development.json` file for development-specific settings (this file is git-ignored):
 
-1. **L1 Cache**: In-memory (5 minutes)
-2. **L2 Cache**: Redis (1 hour)
-3. **L3 Cache**: SQLite (persistent)
-
-## AI Integration
-
-### Natural Language Queries
-
-```python
-# Example queries
-queries = [
-    "How can I increase my lightning damage?",
-    "What's the best chest armor for my budget?",
-    "Should I respec for more defense?",
-    "Which passive nodes give the most DPS?",
-    "How do I transition to CI?",
-    "What uniques work well with my build?"
-]
+```json
+{
+  "AI": {
+    "ApiKey": "your-api-key-here"
+  },
+  "Trade": {
+    "SessionId": "your-poe-session-id"
+  }
+}
 ```
 
-### Context-Aware Responses
+## Project Structure
 
-The AI maintains context about:
-- Current character state
-- Previous questions
-- Build goals
-- Budget constraints
-- Playstyle preferences
+```
+poe2-mcp/
+├── src/
+│   ├── Poe2Mcp.Server/        # MCP server application
+│   │   ├── Program.cs          # Entry point and host configuration
+│   │   ├── McpServer.cs        # MCP server implementation
+│   │   └── Tools/              # MCP tool implementations
+│   └── Poe2Mcp.Core/          # Core business logic
+│       ├── Calculators/        # EHP, damage, spirit calculators
+│       ├── Analyzers/          # Build analyzers and optimizers
+│       ├── Data/               # Database models and context
+│       ├── Services/           # API clients and services
+│       └── AI/                 # AI integration and query handling
+├── tests/
+│   └── Poe2Mcp.Tests/         # Unit and integration tests
+├── poe2-mcp-python/           # Original Python implementation
+└── Poe2Mcp.sln                # Solution file
+```
+
+## Building and Testing
+
+```bash
+# Build the entire solution
+dotnet build
+
+# Run all tests
+dotnet test
+
+# Run with code coverage
+dotnet test /p:CollectCoverage=true
+
+# Publish for deployment
+dotnet publish -c Release -o ./publish
+```
+
+## MCP Tools
+
+The server exposes the following MCP tools:
+
+- `analyze_character` - Analyze a PoE2 character
+- `calculate_character_ehp` - Calculate Effective Health Pool
+- `detect_character_weaknesses` - Find build weaknesses
+- `optimize_build_metrics` - Comprehensive build optimization
+- `search_trade_items` - Find gear upgrades on trade site
+- `find_best_supports` - Optimal support gem combinations
+- `explain_mechanic` - Explain PoE2 game mechanics
+- `compare_items` - Compare two items
+- `analyze_damage_scaling` - Identify damage bottlenecks
+- `check_content_readiness` - Check if ready for specific content
 
 ## Development
 
-### Running Tests
+### Code Style
 
-```bash
-# Run all tests
-pytest
+This project follows standard C# coding conventions:
+- PascalCase for public members
+- camelCase for private fields
+- async/await for asynchronous operations
+- Dependency injection throughout
+- Comprehensive XML documentation comments
 
-# Run specific test suite
-pytest tests/test_calculator.py
+### Testing
 
-# Run with coverage
-pytest --cov=src tests/
+Tests are written using xUnit with FluentAssertions for readable assertions:
+
+```csharp
+[Fact]
+public async Task CalculateEhp_WithValidStats_ReturnsAccurateEhp()
+{
+    // Arrange
+    var stats = new DefensiveStats { Life = 5000, FireResistance = 75 };
+    
+    // Act
+    var ehp = await _calculator.CalculateEhpAsync(stats);
+    
+    // Assert
+    ehp.Physical.Should().BeGreaterThan(5000);
+}
 ```
 
-### Code Quality
+## Migrating from Python Version
 
-```bash
-# Format code
-black src/ tests/
+If you're familiar with the Python version, here are the key differences:
 
-# Lint
-flake8 src/ tests/
-
-# Type checking
-mypy src/
-```
-
-### Database Migrations
-
-```bash
-# Create migration
-alembic revision --autogenerate -m "description"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback
-alembic downgrade -1
-```
-
-## Configuration
-
-Configuration is managed via environment variables and `config.yaml`:
-
-```yaml
-# config.yaml
-server:
-  host: 127.0.0.1
-  port: 8080
-  workers: 4
-
-database:
-  url: sqlite:///data/poe2_optimizer.db
-  pool_size: 10
-
-api:
-  poe_api_rate_limit: 10
-  poe2db_rate_limit: 30
-  enable_caching: true
-
-ai:
-  provider: anthropic  # or openai
-  model: claude-sonnet-4-20250514
-  max_tokens: 4096
-  temperature: 0.7
-
-web:
-  port: 3000
-  enable_build_sharing: true
-  max_saved_builds_per_user: 50
-
-features:
-  enable_trade_integration: true
-  enable_pob_export: true
-  enable_ai_insights: true
-```
-
-## Security & Privacy
-
-- **No Credential Storage**: Uses OAuth flow for PoE account access
-- **Local-First**: All character data cached locally
-- **Optional Cloud Sync**: Encrypted cloud backup (opt-in)
-- **Rate Limit Enforcement**: Prevents API abuse
-- **Data Encryption**: All saved builds encrypted at rest
-
-## Performance
-
-- **Sub-second Analysis**: Most character analyses complete in <500ms
-- **Parallel Calculations**: Multi-threaded build calculations
-- **Intelligent Caching**: Reduces API calls by 90%+
-- **WebSocket Updates**: Real-time updates without polling
-- **CDN Assets**: Static assets served via CDN
+| Python | C# |
+|--------|-----|
+| `config.yaml` | `appsettings.json` |
+| `requirements.txt` | NuGet packages in `.csproj` |
+| `async def` | `async Task<T>` |
+| SQLAlchemy | Entity Framework Core |
+| Type hints | Strong typing |
+| pytest | xUnit |
 
 ## Contributing
 
-This is a personal project, but contributions are welcome!
+Contributions are welcome! Please:
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Add tests
+3. Write tests for new functionality
+4. Ensure all tests pass
 5. Submit a pull request
-
-## Roadmap
-
-### Phase 1 (Current)
-- [x] MCP server foundation
-- [x] Basic character analysis
-- [x] Local database setup
-- [x] API integration with rate limiting
-
-### Phase 2
-- [ ] Build calculator engine
-- [ ] Gear optimization
-- [ ] Passive tree optimization
-- [ ] Web interface MVP
-
-### Phase 3
-- [ ] AI natural language queries
-- [ ] Path of Building integration
-- [ ] Trade integration
-- [ ] Build sharing
-
-### Phase 4
-- [ ] Advanced AI insights
-- [ ] Meta trend analysis
-- [ ] Build version tracking
-- [ ] Mobile app
 
 ## License
 
@@ -455,6 +208,17 @@ Built with data from:
 - [poe.ninja](https://poe.ninja) - Meta builds and economy data
 - Path of Exile 2 by Grinding Gear Games
 
+## Comparison with Python Version
+
+The original Python implementation is preserved in the `poe2-mcp-python` folder. The C# version provides:
+
+- **Better Performance**: Compiled code and optimized runtime
+- **Strong Typing**: Compile-time type safety
+- **Native Async**: First-class async/await support
+- **Better Tooling**: Visual Studio, Rider, VS Code with OmniSharp
+- **Enterprise Ready**: Production-grade DI, logging, configuration
+- **Cross-Platform**: Runs on Windows, Linux, macOS via .NET
+
 ---
 
-**Built for the PoE2 community** | [Report Issues](https://github.com/yourusername/poe2-optimizer/issues)
+**Built for the PoE2 community with .NET 10 and modern C# best practices**
