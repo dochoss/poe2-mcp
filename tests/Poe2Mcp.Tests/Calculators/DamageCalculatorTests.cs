@@ -25,9 +25,9 @@ public class DamageCalculatorTests
         
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.DamageByType.ContainsKey(DamageType.Physical));
-        Assert.Equal(50, result.DamageByType[DamageType.Physical].MinDamage);
-        Assert.Equal(100, result.DamageByType[DamageType.Physical].MaxDamage);
+        Assert.True(result.DamageByType.TryGetValue(DamageType.Physical, out var physicalDamage));
+        Assert.Equal(50, physicalDamage.MinDamage);
+        Assert.Equal(100, physicalDamage.MaxDamage);
     }
     
     [Fact]
