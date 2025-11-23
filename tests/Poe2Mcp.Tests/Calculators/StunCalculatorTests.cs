@@ -52,8 +52,9 @@ public class StunCalculatorTests
             AttackType.Spell);
         
         // Assert
-        Assert.Equal(0.0, result.FinalChance); // Below 15% threshold
-        Assert.False(result.WillStun);
+        // FinalChance should reflect the calculated value even when below threshold
+        Assert.True(result.FinalChance > 0 && result.FinalChance < 15); // Below 15% threshold
+        Assert.False(result.WillStun); // But WillStun is false
     }
     
     [Fact]

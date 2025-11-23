@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Poe2Mcp.Core.Models;
 
@@ -11,7 +12,7 @@ namespace Poe2Mcp.Core.Calculators;
 public class StunCalculator : IStunCalculator
 {
     private readonly ILogger<StunCalculator> _logger;
-    private readonly Dictionary<string, HeavyStunMeter> _entityMeters = new();
+    private readonly ConcurrentDictionary<string, HeavyStunMeter> _entityMeters = new();
     
     // Constants
     private const double LIGHT_STUN_MINIMUM_THRESHOLD = 15.0;  // Minimum 15% chance required
@@ -20,6 +21,7 @@ public class StunCalculator : IStunCalculator
     private const double PRIMED_STATE_THRESHOLD = 50.0;  // Primed at 50% meter
     private const double HEAVY_STUN_THRESHOLD = 100.0;  // Heavy Stun at 100% meter
     private const double HEAVY_STUN_DURATION = 3.0;  // 3 seconds Heavy Stun duration
+    private const double EPSILON = 1e-6;  // Epsilon for floating-point comparisons
     
     public StunCalculator(ILogger<StunCalculator> logger)
     {
@@ -70,7 +72,7 @@ public class StunCalculator : IStunCalculator
         var chance = baseChance * damageTypeBonus * attackTypeBonus;
         
         // Apply increased modifier (additive)
-        if (modifiers.IncreasedStunChance != 0)
+        if (Math.Abs(modifiers.IncreasedStunChance) > EPSILON)
         {
             chance *= (1.0 + modifiers.IncreasedStunChance / 100.0);
         }
@@ -80,7 +82,7 @@ public class StunCalculator : IStunCalculator
         
         // Apply stun threshold modifiers (affects the "effective damage")
         var thresholdMultiplier = modifiers.IncreasedStunThreshold * modifiers.ReducedStunThreshold;
-        if (thresholdMultiplier != 1.0)
+        if (Math.Abs(thresholdMultiplier - 1.0) > EPSILON)
         {
             // Inverse relationship: lower threshold = higher chance
             chance /= thresholdMultiplier;
@@ -138,7 +140,7 @@ public class StunCalculator : IStunCalculator
         var meter = _entityMeters[entityId];
         
         // Update max buildup if target life changed
-        if (meter.MaxBuildup != targetMaxLife)
+        if (Math.Abs(meter.MaxBuildup - targetMaxLife) > EPSILON)
         {
             var oldPercentage = meter.BuildupPercentage;
             meter.MaxBuildup = targetMaxLife;
@@ -184,7 +186,7 @@ public class StunCalculator : IStunCalculator
         var buildup = baseBuildup * damageTypeBonus * attackTypeBonus;
         
         // Apply increased modifier (additive)
-        if (modifiers.IncreasedStunChance != 0)
+        if (Math.Abs(modifiers.IncreasedStunChance) > EPSILON)
         {
             buildup *= (1.0 + modifiers.IncreasedStunChance / 100.0);
         }
@@ -197,8 +199,7 @@ public class StunCalculator : IStunCalculator
         
         // Apply stun threshold modifiers
         var thresholdMultiplier = modifiers.IncreasedStunThreshold * modifiers.ReducedStunThreshold;
-        // Use epsilon comparison for floating-point equality
-        if (Math.Abs(thresholdMultiplier - 1.0) > 1e-6)
+        if (Math.Abs(thresholdMultiplier - 1.0) > EPSILON)
         {
             buildup /= thresholdMultiplier;
         }
@@ -321,7 +322,7 @@ public class StunCalculator : IStunCalculator
     
     public void RemoveEntity(string entityId)
     {
-        if (_entityMeters.Remove(entityId))
+        if (_entityMeters.TryRemove(entityId, out _))
         {
             _logger.LogInformation("Removed entity from tracking: {EntityId}", entityId);
         }
@@ -365,7 +366,7 @@ public class StunCalculator : IStunCalculator
                                lightResult.DamageTypeBonus * 
                                lightResult.AttackTypeBonus;
             
-            if (modifiers.IncreasedStunChance != 0)
+            if (Math.Abs(modifiers.IncreasedStunChance) > EPSILON)
             {
                 chancePerHit *= (1.0 + modifiers.IncreasedStunChance / 100.0);
             }
@@ -394,7 +395,7 @@ public class StunCalculator : IStunCalculator
         
         var buildupPerHit = baseBuildup * damageTypeBonus * attackTypeBonus;
         
-        if (modifiers.IncreasedStunChance != 0)
+        if (Math.Abs(modifiers.IncreasedStunChance) > EPSILON)
         {
             buildupPerHit *= (1.0 + modifiers.IncreasedStunChance / 100.0);
         }
@@ -402,7 +403,7 @@ public class StunCalculator : IStunCalculator
         buildupPerHit *= modifiers.StunBuildupMultiplier;
         
         var thresholdMultiplier = modifiers.IncreasedStunThreshold * modifiers.ReducedStunThreshold;
-        if (thresholdMultiplier != 1.0)
+        if (Math.Abs(thresholdMultiplier - 1.0) > EPSILON)
         {
             buildupPerHit /= thresholdMultiplier;
         }

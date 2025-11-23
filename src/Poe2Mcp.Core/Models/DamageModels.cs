@@ -1,6 +1,18 @@
 namespace Poe2Mcp.Core.Models;
 
 /// <summary>
+/// Enumeration of action types for skill usage.
+/// </summary>
+public enum ActionType
+{
+    /// <summary>Attack action using attack speed</summary>
+    Attack,
+    
+    /// <summary>Cast action using cast speed</summary>
+    Cast
+}
+
+/// <summary>
 /// Enumeration of modifier types.
 /// </summary>
 public enum ModifierType

@@ -17,6 +17,11 @@ public class WeaknessDetector : IWeaknessDetector
     private const int MIN_ELEMENTAL_RES = 75;
     private const int MIN_CHAOS_RES = 0;
     private const int RECOMMENDED_CHAOS_RES = 50;
+    /// <summary>
+    /// Minimum Energy Shield to consider for hybrid build analysis.
+    /// ES below this threshold is typically incidental rather than a deliberate build choice.
+    /// </summary>
+    private const int MIN_ES_FOR_ANALYSIS = 1000;
     
     public WeaknessDetector(ILogger<WeaknessDetector> logger)
     {
@@ -239,7 +244,7 @@ public class WeaknessDetector : IWeaknessDetector
         var weaknesses = new List<Weakness>();
         
         // Only analyze ES if it's a significant portion of the character's defense
-        if (stats.EnergyShield > 1000)
+        if (stats.EnergyShield > MIN_ES_FOR_ANALYSIS)
         {
             var totalPool = stats.Life + stats.EnergyShield;
             var esPercentage = (double)stats.EnergyShield / totalPool * 100;

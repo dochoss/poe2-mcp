@@ -79,5 +79,5 @@ public interface IDamageCalculator
         double baseActionTime = 1.0,
         IEnumerable<Modifier>? increasedSpeedModifiers = null,
         CriticalStrikeConfig? critConfig = null,
-        bool isSpell = false);
+        ActionType actionType = ActionType.Attack);
 }

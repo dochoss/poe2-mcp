@@ -273,7 +273,7 @@ public class DamageCalculator : IDamageCalculator
         double baseActionTime = 1.0,
         IEnumerable<Modifier>? increasedSpeedModifiers = null,
         CriticalStrikeConfig? critConfig = null,
-        bool isSpell = false)
+        ActionType actionType = ActionType.Attack)
     {
         ArgumentNullException.ThrowIfNull(baseDamageComponents);
         
@@ -282,7 +282,7 @@ public class DamageCalculator : IDamageCalculator
         increasedSpeedModifiers ??= Array.Empty<Modifier>();
         
         // Calculate action speed
-        var actionsPerSecond = isSpell
+        var actionsPerSecond = actionType == ActionType.Cast
             ? CalculateCastSpeed(baseActionTime, increasedSpeedModifiers)
             : CalculateAttackSpeed(baseActionTime, increasedSpeedModifiers);
         
