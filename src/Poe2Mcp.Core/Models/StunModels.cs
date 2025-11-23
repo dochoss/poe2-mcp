@@ -106,7 +106,7 @@ public class LightStunResult
         $"Light Stun: {FinalChance:F1}% chance " +
         $"({(WillStun ? "STUN" : "no stun")}) - " +
         $"Base: {BaseChance:F1}% × " +
-        $"DmgType: {DamageTypeBonus:F2}× × " +
+        $"DmgType: {DamageTypeBonus:F2}× " +
         $"AtkType: {AttackTypeBonus:F2}×";
 }
 
