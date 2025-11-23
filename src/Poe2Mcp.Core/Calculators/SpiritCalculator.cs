@@ -147,9 +147,18 @@ public class SpiritCalculator : ISpiritCalculator
         if (priority < 1 || priority > 10)
             throw new ArgumentException("Priority must be between 1 and 10", nameof(priority));
             
-        var supportGemsList = supportGems?
-            .Select(sg => new SupportGem { Name = sg.Name, Multiplier = sg.Multiplier })
-            .ToList() ?? new List<SupportGem>();
+        var supportGemsList = new List<SupportGem>();
+        if (supportGems != null)
+        {
+            foreach (var sg in supportGems)
+            {
+                if (string.IsNullOrWhiteSpace(sg.Name))
+                    throw new ArgumentException("Support gem name cannot be null or whitespace.", nameof(supportGems));
+                if (sg.Multiplier <= 0)
+                    throw new ArgumentException($"Support gem multiplier must be positive for gem '{sg.Name}'.", nameof(supportGems));
+                supportGemsList.Add(new SupportGem { Name = sg.Name, Multiplier = sg.Multiplier });
+            }
+        }
             
         var reservation = new SpiritReservation
         {
