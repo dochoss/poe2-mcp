@@ -7,88 +7,51 @@ namespace Poe2Mcp.Server;
 /// Main MCP server implementation for Path of Exile 2 Build Optimizer
 /// </summary>
 /// <remarks>
-/// This is a placeholder implementation. The ModelContextProtocol SDK API needs to be
-/// researched further to implement the full MCP server functionality.
-/// See: https://github.com/modelcontextprotocol/csharp-sdk
+/// This is a Phase 2 infrastructure implementation. Full MCP protocol integration
+/// with tools, resources, and prompts will be completed in Phase 7.
+/// The ModelContextProtocol SDK integration requires further research of the preview API.
 /// </remarks>
-public class McpServer
+public class Poe2McpServer
 {
-    private readonly ILogger<McpServer> _logger;
+    private readonly ILogger<Poe2McpServer> _logger;
     private readonly McpServerOptions _options;
 
-    public McpServer(
-        ILogger<McpServer> logger,
+    public Poe2McpServer(
+        ILogger<Poe2McpServer> logger,
         IOptions<McpServerOptions> options)
     {
-        _logger = logger;
-        _options = options.Value;
-        
-        RegisterTools();
-        RegisterResources();
-        RegisterPrompts();
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     /// <summary>
     /// Run the MCP server
     /// </summary>
-    public async Task RunAsync()
+    public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Starting {ServerName} v{Version}", 
             _options.Name, _options.Version);
         
-        _logger.LogInformation("MCP Server placeholder - full implementation pending");
-        _logger.LogInformation("See ModelContextProtocol SDK documentation for implementation details");
+        _logger.LogInformation("Phase 2: Core Infrastructure Complete");
+        _logger.LogInformation("- Database: Entity Framework Core with SQLite configured");
+        _logger.LogInformation("- Cache: Multi-tier caching service (Memory + SQLite) initialized");
+        _logger.LogInformation("- Rate Limiter: Token bucket rate limiter configured");
+        _logger.LogInformation("- Configuration: All options registered with DI");
+        _logger.LogInformation("");
+        _logger.LogInformation("Next Phase: MCP Protocol Integration (Phase 7)");
+        _logger.LogInformation("- Research ModelContextProtocol SDK v0.4.0-preview.3 API");
+        _logger.LogInformation("- Implement stdio transport");
+        _logger.LogInformation("- Register tools, resources, and prompts");
         
-        // TODO: Implement actual MCP server using ModelContextProtocol SDK
-        // The SDK API needs to be researched from:
-        // - https://github.com/modelcontextprotocol/csharp-sdk
-        // - https://modelcontextprotocol.github.io/csharp-sdk/
-        
-        await Task.Delay(Timeout.Infinite);
-    }
-
-    private void RegisterTools()
-    {
-        _logger.LogDebug("Registering MCP tools");
-
-        // TODO: Register all MCP tools
-        // Example (once SDK is integrated):
-        // - analyze_character
-        // - calculate_character_ehp
-        // - detect_character_weaknesses
-        // - optimize_build_metrics
-        // - search_trade_items
-        // - find_best_supports
-        // - explain_mechanic
-        // - compare_items
-        // - analyze_damage_scaling
-        // - check_content_readiness
-        
-        _logger.LogInformation("Registered {Count} MCP tools", 0);
-    }
-
-    private void RegisterResources()
-    {
-        _logger.LogDebug("Registering MCP resources");
-        
-        // TODO: Register resources
-        // Example (once SDK is integrated):
-        // - poe2://game-data/items
-        // - poe2://game-data/passives
-        // - poe2://game-data/skills
-        
-        _logger.LogInformation("Registered {Count} MCP resources", 0);
-    }
-
-    private void RegisterPrompts()
-    {
-        _logger.LogDebug("Registering MCP prompts");
-        
-        // TODO: Register prompts
-        // Example (once SDK is integrated):
-        // - analyze_build
-        // - optimize_for_goal
-        
-        _logger.LogInformation("Registered {Count} MCP prompts", 0);
+        // Placeholder: Keep server running
+        // In Phase 7, this will be replaced with actual MCP server.RunAsync()
+        try
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogInformation("Server shutdown requested");
+        }
     }
 }
