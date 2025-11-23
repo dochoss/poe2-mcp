@@ -236,8 +236,8 @@ public class SpiritCalculator : ISpiritCalculator
         var maximum = GetMaximumSpirit();
         var reserved = GetSpiritReserved();
         var available = GetSpiritAvailable();
-        var overflowing = IsOverflowing();
-        var overflowAmount = GetOverflowAmount();
+        var overflowing = available < 0;
+        var overflowAmount = available < 0 ? Math.Abs(available) : 0;
         
         // Count reservations by type
         var reservationCounts = new Dictionary<string, int>();
