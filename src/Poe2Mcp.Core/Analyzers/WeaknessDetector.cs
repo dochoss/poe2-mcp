@@ -92,7 +92,9 @@ public class WeaknessDetector : IWeaknessDetector
                 Description = "Fire resistance is below the recommended 75% cap",
                 CurrentValue = $"{stats.FireResistance}%",
                 RecommendedValue = $"{MIN_ELEMENTAL_RES}%",
-                Impact = $"Taking {(100.0 / (100.0 - stats.FireResistance) - 1) * 100:F0}% more fire damage than necessary",
+                Impact = stats.FireResistance >= 100
+                    ? "No extra fire damage taken (capped)"
+                    : $"Taking {(100.0 / (100.0 - stats.FireResistance) - 1) * 100:F0}% more fire damage than necessary",
                 Recommendations = new List<string>
                 {
                     "Craft or find gear with fire resistance",
