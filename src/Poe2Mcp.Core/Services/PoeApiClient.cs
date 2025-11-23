@@ -38,12 +38,6 @@ public class PoeApiClient : IPoeApiClient
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        // Configure base URL
-        if (!string.IsNullOrEmpty(_options.BaseUrl))
-        {
-            _httpClient.BaseAddress = new Uri(_options.BaseUrl);
-        }
-
         // Configure user agent
         if (!_httpClient.DefaultRequestHeaders.Contains("User-Agent"))
         {
