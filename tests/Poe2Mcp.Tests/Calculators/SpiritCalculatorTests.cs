@@ -302,17 +302,17 @@ public class SpiritCalculatorTests
             new[] { ("Support", 1.5), ("Support2", 1.3) });
 
         // Assert
-        // 20 * 1.5 * 1.3 = 39, no rounding needed
+        // 20 * 1.5 * 1.3 = 39; result is an integer, so no rounding is needed
         Assert.Equal(39, reservation.CalculateCost());
         
-        // Test with fractional result
+        // Test with fractional result to validate ceiling rounding
         var reservation2 = _calculator.AddReservation(
             "Test2",
             21,
             SpiritReservationType.Aura,
             new[] { ("Support", 1.5) });
         
-        // 21 * 1.5 = 31.5, rounds up to 32
+        // 21 * 1.5 = 31.5; should round up to 32
         Assert.Equal(32, reservation2.CalculateCost());
     }
 }
