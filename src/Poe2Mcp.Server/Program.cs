@@ -1,7 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Poe2Mcp.Core;
+using Poe2Mcp.Core.Data;
+using Poe2Mcp.Core.Services;
 using Poe2Mcp.Server;
 
 var builder = Host.CreateDefaultBuilder(args)
@@ -15,9 +19,6 @@ var builder = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((context, services) =>
     {
-        // Register MCP server
-        services.AddSingleton<McpServer>();
-        
         // Register configuration sections
         services.Configure<McpServerOptions>(
             context.Configuration.GetSection("McpServer"));
@@ -25,12 +26,33 @@ var builder = Host.CreateDefaultBuilder(args)
             context.Configuration.GetSection("Database"));
         services.Configure<CacheOptions>(
             context.Configuration.GetSection("Cache"));
+        services.Configure<RateLimitingOptions>(
+            context.Configuration.GetSection("RateLimiting"));
+        services.Configure<FeaturesOptions>(
+            context.Configuration.GetSection("Features"));
         
-        // TODO: Register services from Poe2Mcp.Core
-        // services.AddDbContext<Poe2DbContext>();
-        // services.AddMemoryCache();
-        // services.AddScoped<ICharacterFetcher, CharacterFetcher>();
-        // etc.
+        // Register DbContext
+        services.AddDbContext<Poe2DbContext>((serviceProvider, options) =>
+        {
+            var dbOptions = context.Configuration.GetSection("Database").Get<DatabaseOptions>()
+                ?? new DatabaseOptions();
+            options.UseSqlite(dbOptions.ConnectionString);
+            
+            if (dbOptions.EnableSensitiveDataLogging)
+            {
+                options.EnableSensitiveDataLogging();
+            }
+        });
+        
+        // Register memory cache
+        services.AddMemoryCache();
+        
+        // Register core services
+        services.AddSingleton<ICacheService, CacheService>();
+        services.AddSingleton<IRateLimiter, RateLimiter>();
+        
+        // Register MCP server
+        services.AddSingleton<Poe2McpServer>();
     })
     .ConfigureLogging((context, logging) =>
     {
@@ -41,6 +63,20 @@ var builder = Host.CreateDefaultBuilder(args)
 
 var host = builder.Build();
 
+// Initialize cache service
+var cacheService = host.Services.GetRequiredService<ICacheService>() as CacheService;
+if (cacheService != null)
+{
+    await cacheService.InitializeAsync();
+}
+
+// Ensure database is created
+using (var scope = host.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<Poe2DbContext>();
+    await dbContext.Database.EnsureCreatedAsync();
+}
+
 // Get and run the MCP server
-var mcpServer = host.Services.GetRequiredService<McpServer>();
+var mcpServer = host.Services.GetRequiredService<Poe2McpServer>();
 await mcpServer.RunAsync();
