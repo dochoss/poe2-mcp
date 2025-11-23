@@ -46,7 +46,7 @@ public interface IPoeNinjaApiClient
     /// <returns>List of items with prices</returns>
     Task<IReadOnlyList<NinjaItemPrice>> GetItemPricesAsync(
         string league = "Standard",
-        string itemType = "UniqueWeapon",
+        string itemType,
         CancellationToken cancellationToken = default);
 
     /// <summary>
