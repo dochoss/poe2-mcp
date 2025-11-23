@@ -260,33 +260,78 @@ Tasks:
 - Spirit cost efficiency scoring (DPS per spirit)
 - Character modifier application (increased/more damage, cast speed)
 
-### Phase 6: AI Integration
+### Phase 6: AI Integration ✅ COMPLETE
 
-**Status**: ⏳ 0% complete
+**Status**: ✅ 100% complete
 
 Tasks:
-- [ ] Add Microsoft.Extensions.AI package
-- [ ] Implement IChatClient wrapper
-- [ ] Port query handler
-- [ ] Port recommendation engine
-- [ ] Port mechanics knowledge base
-- [ ] Create prompt templates
-- [ ] Add conversation context management
+- [x] Add Microsoft.Extensions.AI package
+- [x] Implement IChatClient wrapper
+- [x] Port query handler
+- [x] Port recommendation engine
+- [x] Port mechanics knowledge base
+- [x] Create prompt templates
+- [x] Add conversation context management
+
+**Deliverables**:
+- ✅ Microsoft.Extensions.AI 10.0.1 package integrated
+- ✅ AIOptions configuration class with appsettings.json support
+- ✅ PoE2MechanicsKnowledgeBase with 6 comprehensive mechanics (freeze, shock, stun, crit, spirit, increased_vs_more)
+- ✅ IQueryHandler and QueryHandler for natural language queries
+- ✅ IRecommendationEngine and RecommendationEngine for AI-powered build recommendations
+- ✅ Full IChatClient integration with configurable model, temperature, and max tokens
+- ✅ Graceful handling of missing API keys with informative messages
+- ✅ 79 comprehensive tests covering all AI components (227 total tests passing)
 
 **Example Integration**:
 ```csharp
+// Query Handler
 public class QueryHandler : IQueryHandler
 {
-    private readonly IChatClient _chatClient;
+    private readonly IChatClient? _chatClient;
     
     public async Task<string> HandleQueryAsync(
         string query,
-        CharacterData? context = null)
+        object? characterContext = null,
+        CancellationToken cancellationToken = default)
     {
-        var messages = BuildPrompt(query, context);
-        var response = await _chatClient.CompleteAsync(messages);
-        return response.Content;
+        var messages = BuildPrompt(query, characterContext);
+        var response = await _chatClient.GetResponseAsync(messages, options, cancellationToken);
+        return response.Text;
     }
+}
+
+// Recommendation Engine
+public class RecommendationEngine : IRecommendationEngine
+{
+    public async Task<string> GenerateRecommendationsAsync(
+        object characterData,
+        object analysis,
+        CancellationToken cancellationToken = default)
+    {
+        var prompt = BuildPrompt(characterData, analysis);
+        var response = await _chatClient.GetResponseAsync(messages, options, cancellationToken);
+        return response.Text;
+    }
+}
+
+// Mechanics Knowledge Base
+var kb = new PoE2MechanicsKnowledgeBase();
+var freeze = kb.GetMechanic("freeze");
+var explanation = kb.FormatMechanicExplanation(freeze);
+var answer = kb.AnswerQuestion("Does freeze work on bosses?");
+```
+
+**Configuration**:
+```json
+{
+  "AI": {
+    "ApiKey": null,
+    "Model": "claude-3-5-sonnet-20241022",
+    "MaxTokens": 1024,
+    "Temperature": 0.7,
+    "RequestTimeoutSeconds": 30
+  }
 }
 ```
 
@@ -578,9 +623,16 @@ The original Python implementation is preserved in `poe2-mcp-python/` for refere
 
 ## Current Status
 
-**Overall Progress**: ~70% complete
+**Overall Progress**: ~80% complete
 
 **Recently Completed**:
+- ✅ **Phase 6: AI Integration** (100%)
+  - ✅ Microsoft.Extensions.AI package integration
+  - ✅ PoE2MechanicsKnowledgeBase with 6 comprehensive mechanics
+  - ✅ QueryHandler for natural language queries
+  - ✅ RecommendationEngine for AI-powered recommendations
+  - ✅ 79 comprehensive tests
+  - ✅ **227 total tests passing**
 - ✅ **Phase 5: Optimizers** (100%)
   - ✅ GearOptimizer with budget tiers and priority system
   - ✅ PassiveOptimizer with allocation and respec suggestions
@@ -620,9 +672,8 @@ The original Python implementation is preserved in `poe2-mcp-python/` for refere
   - ✅ **115 total tests passing**
 
 **Next Steps**:
-1. Implement AI integration (Phase 6)
-2. Implement MCP Tools (Phase 7)
-3. Complete testing & documentation (Phase 8)
+1. Implement MCP Tools (Phase 7)
+2. Complete testing & documentation (Phase 8)
 
 **Blockers**: None
 
@@ -630,4 +681,4 @@ The original Python implementation is preserved in `poe2-mcp-python/` for refere
 
 ---
 
-Last Updated: 2025-11-23 (Phase 5: Optimizers complete - 148 tests passing)
+Last Updated: 2025-11-23 (Phase 6: AI Integration complete - 227 tests passing)

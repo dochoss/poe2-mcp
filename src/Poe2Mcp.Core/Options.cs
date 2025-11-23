@@ -69,3 +69,15 @@ public class CharacterFetcherOptions
     public int MaxLadderSearchDepth { get; set; } = 1000;
     public int LadderPageSize { get; set; } = 200;
 }
+
+/// <summary>
+/// Configuration options for AI integration
+/// </summary>
+public class AIOptions
+{
+    public string? ApiKey { get; set; }
+    public string Model { get; set; } = "claude-3-5-sonnet-20241022";
+    public int MaxTokens { get; set; } = 1024;
+    public double Temperature { get; set; } = 0.7;
+    public int RequestTimeoutSeconds { get; set; } = 30;
+}
