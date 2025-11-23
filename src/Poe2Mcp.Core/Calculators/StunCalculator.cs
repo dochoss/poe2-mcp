@@ -197,7 +197,8 @@ public class StunCalculator : IStunCalculator
         
         // Apply stun threshold modifiers
         var thresholdMultiplier = modifiers.IncreasedStunThreshold * modifiers.ReducedStunThreshold;
-        if (thresholdMultiplier != 1.0)
+        // Use epsilon comparison for floating-point equality
+        if (Math.Abs(thresholdMultiplier - 1.0) > 1e-6)
         {
             buildup /= thresholdMultiplier;
         }
