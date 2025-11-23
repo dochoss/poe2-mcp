@@ -48,14 +48,26 @@ public class TradeApiClient : ITradeApiClient
             _httpClient.DefaultRequestHeaders.Add("User-Agent", 
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0");
         }
-        _httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
-        _httpClient.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-        _httpClient.DefaultRequestHeaders.Add("Origin", "https://www.pathofexile.com");
+        if (!_httpClient.DefaultRequestHeaders.Contains("Accept"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+        }
+        if (!_httpClient.DefaultRequestHeaders.Contains("X-Requested-With"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+        }
+        if (!_httpClient.DefaultRequestHeaders.Contains("Origin"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("Origin", "https://www.pathofexile.com");
+        }
 
         // Add session cookie if provided
         if (!string.IsNullOrEmpty(_options.PoeSessionId))
         {
-            _httpClient.DefaultRequestHeaders.Add("Cookie", $"POESESSID={_options.PoeSessionId}");
+            if (!_httpClient.DefaultRequestHeaders.Contains("Cookie"))
+            {
+                _httpClient.DefaultRequestHeaders.Add("Cookie", $"POESESSID={_options.PoeSessionId}");
+            }
         }
         else
         {
