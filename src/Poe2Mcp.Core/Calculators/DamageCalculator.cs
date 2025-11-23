@@ -155,6 +155,8 @@ public class DamageCalculator : IDamageCalculator
         IEnumerable<Modifier>? increasedModifiers = null,
         IEnumerable<Modifier>? moreModifiers = null)
     {
+        if (!baseDamage.IsValid())
+            throw new ArgumentException("Invalid damage range", nameof(baseDamage));
         increasedModifiers ??= Array.Empty<Modifier>();
         moreModifiers ??= Array.Empty<Modifier>();
         
