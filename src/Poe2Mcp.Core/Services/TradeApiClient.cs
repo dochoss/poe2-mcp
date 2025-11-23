@@ -37,10 +37,6 @@ public class TradeApiClient : ITradeApiClient
         };
 
         // Configure base URL
-        if (!string.IsNullOrEmpty(_options.BaseUrl))
-        {
-            _httpClient.BaseAddress = new Uri(_options.BaseUrl);
-        }
 
         // Configure headers
         if (!_httpClient.DefaultRequestHeaders.Contains("User-Agent"))
