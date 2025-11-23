@@ -25,7 +25,7 @@ public class DamageCalculator : IDamageCalculator
     {
         if (weaponDamage == null && spellBaseDamage == null)
         {
-            throw new ArgumentException("Must provide either weapon_damage or spell_base_damage");
+            throw new ArgumentException("Must provide either weaponDamage or spellBaseDamage");
         }
         
         var components = new DamageComponents();
