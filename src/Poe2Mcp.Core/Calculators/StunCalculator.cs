@@ -93,10 +93,6 @@ public class StunCalculator : IStunCalculator
         var minimumThreshold = modifiers.MinimumStunChance ?? LIGHT_STUN_MINIMUM_THRESHOLD;
         
         var willStun = finalChance >= minimumThreshold;
-        if (!willStun)
-        {
-            finalChance = 0.0;
-        }
         
         var result = new LightStunResult
         {
