@@ -89,13 +89,11 @@ public class DamageCalculator : IDamageCalculator
         
         // Apply each more/less modifier multiplicatively
         var result = baseValue;
-        var multipliers = new List<double>();
+        var multipliers = relevantMods.Select(mod => 1 + mod.GetMultiplier()).ToList();
         
-        foreach (var mod in relevantMods)
+        foreach (var multiplier in multipliers)
         {
-            var multiplier = 1 + mod.GetMultiplier();
             result *= multiplier;
-            multipliers.Add(multiplier);
         }
         
         if (relevantMods.Count > 0)
