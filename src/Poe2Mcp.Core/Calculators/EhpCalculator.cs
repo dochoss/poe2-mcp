@@ -5,12 +5,32 @@ using Poe2Mcp.Core.Models;
 /// <summary>
 /// Calculator for Effective Health Pool (EHP) based on PoE2 mechanics
 /// </summary>
-public class EhpCalculator
+public class EhpCalculator : IEhpCalculator
 {
     /// <summary>
-    /// Calculate EHP against all damage types
+    /// Calculate EHP against all damage types and return as dictionary.
     /// </summary>
-    public IReadOnlyList<EhpResult> CalculateEhp(DefensiveStats stats, int expectedHitSize = 1000)
+    public Dictionary<string, double> CalculateEhp(
+        DefensiveStats stats,
+        ThreatProfile? threatProfile = null)
+    {
+        threatProfile ??= new ThreatProfile();
+        var result = new Dictionary<string, double>();
+
+        foreach (DamageType damageType in Enum.GetValues<DamageType>())
+        {
+            var hitSize = threatProfile.GetHitSize(damageType);
+            var ehp = CalculateEhpForDamageType(stats, damageType, hitSize);
+            result[damageType.ToString()] = ehp.EffectiveHealthPool;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Calculate EHP against all damage types with detailed results.
+    /// </summary>
+    public IReadOnlyList<EhpResult> CalculateEhpDetailed(DefensiveStats stats, int expectedHitSize = 1000)
     {
         var results = new List<EhpResult>();
         

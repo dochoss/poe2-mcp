@@ -77,3 +77,37 @@ public record CharacterWeakness
     public WeaknessSeverity Severity { get; init; }
     public string[] Recommendations { get; init; } = Array.Empty<string>();
 }
+
+/// <summary>
+/// Threat profile for EHP calculations - defines expected hit sizes for different damage types.
+/// </summary>
+public class ThreatProfile
+{
+    /// <summary>Expected physical hit size</summary>
+    public int PhysicalHitSize { get; set; } = 1000;
+    
+    /// <summary>Expected fire hit size</summary>
+    public int FireHitSize { get; set; } = 1000;
+    
+    /// <summary>Expected cold hit size</summary>
+    public int ColdHitSize { get; set; } = 1000;
+    
+    /// <summary>Expected lightning hit size</summary>
+    public int LightningHitSize { get; set; } = 1000;
+    
+    /// <summary>Expected chaos hit size</summary>
+    public int ChaosHitSize { get; set; } = 1000;
+    
+    /// <summary>
+    /// Gets the hit size for a specific damage type.
+    /// </summary>
+    public int GetHitSize(DamageType damageType) => damageType switch
+    {
+        DamageType.Physical => PhysicalHitSize,
+        DamageType.Fire => FireHitSize,
+        DamageType.Cold => ColdHitSize,
+        DamageType.Lightning => LightningHitSize,
+        DamageType.Chaos => ChaosHitSize,
+        _ => 1000
+    };
+}

@@ -1,4 +1,4 @@
-﻿using Poe2Mcp.Core.Calculators;
+using Poe2Mcp.Core.Calculators;
 using Poe2Mcp.Core.Models;
 
 namespace Poe2Mcp.Tests;
@@ -25,7 +25,7 @@ public class EhpCalculatorTests
         };
 
         // Act
-        var results = _calculator.CalculateEhp(stats);
+        var results = _calculator.CalculateEhpDetailed(stats);
 
         // Assert
         Assert.NotNull(results);
@@ -58,7 +58,7 @@ public class EhpCalculatorTests
         };
 
         // Act
-        var results = _calculator.CalculateEhp(stats, expectedHitSize: 1000);
+        var results = _calculator.CalculateEhpDetailed(stats, expectedHitSize: 1000);
 
         // Assert
         var physicalEhp = results.First(r => r.DamageType == DamageType.Physical);
@@ -87,7 +87,7 @@ public class EhpCalculatorTests
         };
 
         // Act
-        var results = _calculator.CalculateEhp(stats);
+        var results = _calculator.CalculateEhpDetailed(stats);
 
         // Assert
         var chaosEhp = results.First(r => r.DamageType == DamageType.Chaos);
@@ -100,4 +100,3 @@ public class EhpCalculatorTests
         Assert.Equal(5000, physicalEhp.EffectiveHealthPool, precision: 0);
     }
 }
-
