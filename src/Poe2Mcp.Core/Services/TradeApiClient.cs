@@ -74,6 +74,10 @@ public class TradeApiClient : ITradeApiClient
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(league);
         ArgumentNullException.ThrowIfNull(query);
+        if (limit <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(limit), "Limit must be greater than zero");
+        }
 
         try
         {
