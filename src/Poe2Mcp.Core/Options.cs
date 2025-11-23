@@ -58,4 +58,14 @@ public class TradeApiOptions
     public string BaseUrl { get; set; } = "https://www.pathofexile.com";
     public int RequestTimeoutSeconds { get; set; } = 30;
     public string? PoeSessionId { get; set; }
+    public int RequestDelayMilliseconds { get; set; } = 500;
+}
+
+/// <summary>
+/// Configuration options for character fetcher
+/// </summary>
+public class CharacterFetcherOptions
+{
+    public int MaxLadderSearchDepth { get; set; } = 1000;
+    public int LadderPageSize { get; set; } = 200;
 }

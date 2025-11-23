@@ -36,6 +36,8 @@ var builder = Host.CreateDefaultBuilder(args)
             context.Configuration.GetSection("PoeNinja"));
         services.Configure<TradeApiOptions>(
             context.Configuration.GetSection("TradeApi"));
+        services.Configure<CharacterFetcherOptions>(
+            context.Configuration.GetSection("CharacterFetcher"));
         
         // Register DbContext
         services.AddDbContext<Poe2DbContext>((serviceProvider, options) =>

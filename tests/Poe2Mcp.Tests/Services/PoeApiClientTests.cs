@@ -157,7 +157,7 @@ public class PoeApiClientTests : IDisposable
                 "SendAsync",
                 ItExpr.IsAny<HttpRequestMessage>(),
                 ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage
+            .ReturnsAsync(() => new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.NotFound
             });
@@ -191,7 +191,7 @@ public class PoeApiClientTests : IDisposable
                 "SendAsync",
                 ItExpr.IsAny<HttpRequestMessage>(),
                 ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage
+            .ReturnsAsync(() => new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.Forbidden
             });
@@ -246,7 +246,7 @@ public class PoeApiClientTests : IDisposable
                 "SendAsync",
                 ItExpr.IsAny<HttpRequestMessage>(),
                 ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage
+            .ReturnsAsync(() => new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(jsonResponse)
@@ -264,7 +264,7 @@ public class PoeApiClientTests : IDisposable
         _mockCache.Verify(x => x.SetAsync(
             It.IsAny<string>(),
             It.IsAny<PassiveTreeData>(),
-            It.Is<TimeSpan>(ts => ts.TotalHours == 24),
+            It.Is<TimeSpan>(ts => Math.Abs(ts.TotalHours - 24) < 0.01),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

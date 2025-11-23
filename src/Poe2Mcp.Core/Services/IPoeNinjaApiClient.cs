@@ -41,12 +41,12 @@ public interface IPoeNinjaApiClient
     /// Get item prices from poe.ninja economy API
     /// </summary>
     /// <param name="league">League name</param>
-    /// <param name="itemType">Type of items</param>
+    /// <param name="itemType">Type of items (e.g., "UniqueWeapon", "UniqueArmour")</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of items with prices</returns>
     Task<IReadOnlyList<NinjaItemPrice>> GetItemPricesAsync(
         string league = "Standard",
-        string itemType,
+        string itemType = "UniqueWeapon",
         CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -169,18 +169,12 @@ public class TradeApiClient : ITradeApiClient
             var data = await response.Content.ReadFromJsonAsync<JsonObject>(_jsonOptions, cancellationToken);
             var results = data?["result"]?.AsArray() ?? new JsonArray();
 
-            var items = new List<TradeItemListing>();
-
-            foreach (var itemData in results)
-            {
-                if (itemData == null) continue;
-
-                var item = ParseItemListing(itemData.AsObject());
-                if (item != null)
-                {
-                    items.Add(item);
-                }
-            }
+            var items = results
+                .Where(itemData => itemData != null)
+                .Select(itemData => ParseItemListing(itemData!.AsObject()))
+                .Where(item => item != null)
+                .Cast<TradeItemListing>()
+                .ToList();
 
             return items;
         }
@@ -253,15 +247,10 @@ public class TradeApiClient : ITradeApiClient
             return 0;
         }
 
-        var maxLinks = 0;
-        foreach (var socket in sockets)
-        {
-            var group = socket?["group"]?.GetValue<int>() ?? 0;
-            if (group > maxLinks)
-            {
-                maxLinks = group;
-            }
-        }
+        var maxLinks = sockets
+            .Select(socket => socket?["group"]?.GetValue<int>() ?? 0)
+            .DefaultIfEmpty(0)
+            .Max();
 
         return maxLinks > 0 ? maxLinks + 1 : 0;
     }

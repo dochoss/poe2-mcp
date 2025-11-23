@@ -247,14 +247,11 @@ public class PoeNinjaApiClient : IPoeNinjaApiClient
                 return Array.Empty<NinjaItemPrice>();
             }
 
-            var items = new List<NinjaItemPrice>();
-            foreach (var line in lines)
-            {
-                if (line == null) continue;
-
-                var item = new NinjaItemPrice
+            var items = lines
+                .Where(line => line != null)
+                .Select(line => new NinjaItemPrice
                 {
-                    Name = line["name"]?.GetValue<string>() ?? "",
+                    Name = line!["name"]?.GetValue<string>() ?? "",
                     BaseType = line["baseType"]?.GetValue<string>() ?? "",
                     ChaosValue = line["chaosValue"]?.GetValue<double>() ?? 0,
                     ExaltedValue = line["exaltedValue"]?.GetValue<double>() ?? 0,
@@ -262,10 +259,8 @@ public class PoeNinjaApiClient : IPoeNinjaApiClient
                     Icon = line["icon"]?.GetValue<string>() ?? "",
                     Links = line["links"]?.GetValue<int>() ?? 0,
                     ItemLevel = line["itemLevel"]?.GetValue<int>() ?? 0
-                };
-
-                items.Add(item);
-            }
+                })
+                .ToList();
 
             // Cache the result
             await _cacheService.SetAsync(
@@ -399,15 +394,10 @@ public class PoeNinjaApiClient : IPoeNinjaApiClient
             return null;
         }
 
-        foreach (var snapshot in snapshots)
-        {
-            if (snapshot?["url"]?.GetValue<string>() == leagueSlug)
-            {
-                return snapshot.AsObject();
-            }
-        }
-
-        return null;
+        return snapshots
+            .Where(snapshot => snapshot?["url"]?.GetValue<string>() == leagueSlug)
+            .Select(snapshot => snapshot!.AsObject())
+            .FirstOrDefault();
     }
 
     private CharacterData NormalizeApiCharacterData(JsonObject apiData, string account, string character, string league)

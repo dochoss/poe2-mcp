@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Poe2Mcp.Core.Models;
 
 namespace Poe2Mcp.Core.Services;
@@ -16,29 +17,23 @@ public class CharacterFetcher : ICharacterFetcher
     private readonly ICacheService _cacheService;
     private readonly IRateLimiter _rateLimiter;
     private readonly IPoeNinjaApiClient _ninjaClient;
+    private readonly CharacterFetcherOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
-
-    private static readonly Dictionary<string, string> LeagueNameMappings = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { "Rise of the Abyssal", "Abyss" },
-        { "Abyss", "Abyss" },
-        { "Abyss Hardcore", "Hardcore Abyss" },
-        { "Abyss SSF", "SSF Abyss" },
-        { "Abyss Hardcore SSF", "SSF Hardcore Abyss" }
-    };
 
     public CharacterFetcher(
         HttpClient httpClient,
         ILogger<CharacterFetcher> logger,
         ICacheService cacheService,
         IRateLimiter rateLimiter,
-        IPoeNinjaApiClient ninjaClient)
+        IPoeNinjaApiClient ninjaClient,
+        IOptions<CharacterFetcherOptions> options)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _rateLimiter = rateLimiter ?? throw new ArgumentNullException(nameof(rateLimiter));
         _ninjaClient = ninjaClient ?? throw new ArgumentNullException(nameof(ninjaClient));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
         _jsonOptions = new JsonSerializerOptions
         {
@@ -227,25 +222,37 @@ public class CharacterFetcher : ICharacterFetcher
         try
         {
             var baseUrl = $"/ladders/{apiLeague}";
+            var pageSize = _options.LadderPageSize;
+            var maxDepth = _options.MaxLadderSearchDepth;
 
             // Search through ladder pages to find the character
-            for (var offset = 0; offset < 1000; offset += 200)
+            // Early termination if we get an empty page
+            for (var offset = 0; offset < maxDepth; offset += pageSize)
             {
                 await _rateLimiter.WaitAsync("poe-ladder", cancellationToken);
 
-                var url = $"{baseUrl}?limit=200&offset={offset}";
+                var url = $"{baseUrl}?limit={pageSize}&offset={offset}";
                 var response = await _httpClient.GetAsync(url, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
                 var data = await response.Content.ReadFromJsonAsync<LadderResponse>(_jsonOptions, cancellationToken);
+                var entries = data?.Entries ?? Array.Empty<LadderEntryRaw>();
+
+                // Early termination: if we get no entries, we've reached the end of the ladder
+                if (!entries.Any())
+                {
+                    _logger.LogDebug("Reached end of ladder at offset {Offset}", offset);
+                    break;
+                }
 
                 // Search for the character in the ladder
-                foreach (var entry in data?.Entries ?? Array.Empty<LadderEntryRaw>())
+                foreach (var entry in entries)
                 {
                     var charName = entry.Character?.Name;
                     if (string.Equals(charName, characterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.LogInformation("Found character {Character} in ladder", characterName);
+                        _logger.LogInformation("Found character {Character} in ladder at rank {Rank}", 
+                            characterName, entry.Rank);
 
                         var charData = new CharacterData
                         {
@@ -269,8 +276,8 @@ public class CharacterFetcher : ICharacterFetcher
                 }
             }
 
-            _logger.LogWarning("Character {Character} not found in top 1000 of {League} ladder",
-                characterName, apiLeague);
+            _logger.LogWarning("Character {Character} not found in top {MaxDepth} of {League} ladder",
+                characterName, maxDepth, apiLeague);
             return null;
         }
         catch (Exception ex)
@@ -282,14 +289,7 @@ public class CharacterFetcher : ICharacterFetcher
 
     private static string NormalizeLeagueName(string league)
     {
-        // Check exact match first
-        if (LeagueNameMappings.TryGetValue(league, out var normalized))
-        {
-            return normalized;
-        }
-
-        // Return as-is if no mapping found (works for Standard, Hardcore, etc.)
-        return league;
+        return LeagueNameNormalizer.NormalizeForOfficialApi(league);
     }
 
     // Internal models for ladder API responses
