@@ -64,6 +64,9 @@ public class Modifier
     /// <summary>
     /// Modifier value (as percentage, e.g., 50 for 50%).
     /// </summary>
+    /// <remarks>
+    /// Note: Value should always be positive. The sign is determined by ModifierType (Reduced/Less are treated as negative).
+    /// </remarks>
     public double Value { get; set; }
     
     /// <summary>
