@@ -27,10 +27,29 @@ public interface ITradeApiClient
 /// </summary>
 public class TradeSearchQuery
 {
+    /// <summary>
+    /// Search term for the item name.
+    /// </summary>
     public string? Term { get; set; }
+
+    /// <summary>
+    /// Item type filter (e.g., "Two Hand Sword").
+    /// </summary>
     public string? Type { get; set; }
+
+    /// <summary>
+    /// Explicit item name filter.
+    /// </summary>
     public string? Name { get; set; }
+
+    /// <summary>
+    /// Stat filters to apply to the search. Each filter specifies a stat id and optional min/max values.
+    /// </summary>
     public List<TradeStatFilter>? Stats { get; set; }
+
+    /// <summary>
+    /// Additional item filters as key-value pairs (e.g., ilvl, quality, corrupted).
+    /// </summary>
     public Dictionary<string, object>? ItemFilters { get; set; }
 }
 
