@@ -147,7 +147,7 @@ public class DamageCalculatorTests
         
         // Assert
         // Average damage: 150
-        // Crit multiplier: (0.5 * 1) + (0.5 * 2) = 1.5
+        // Crit multiplier: (1 - critChance) * 1.0 + critChance * (1 + critMultiplier/100) = (1 - 0.5) * 1.0 + 0.5 * 2.0 = 0.5 + 1.0 = 1.5
         // DPS: 150 * 1.5 * 2 = 450
         Assert.InRange(result, 449, 451);
     }
