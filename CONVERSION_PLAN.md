@@ -113,47 +113,33 @@ Tasks:
 - ✅ EHP calculator fully implemented
 - ✅ Python code preserved
 
-### Phase 2: Core Infrastructure (IN PROGRESS)
+### Phase 2: Core Infrastructure ✅ COMPLETE
 
-**Status**: ⏳ 20% complete
+**Status**: ✅ 100% complete
 
 Tasks:
-- [ ] Research ModelContextProtocol C# SDK API
-- [ ] Implement MCP server with stdio transport
-- [ ] Register tools, resources, and prompts
-- [ ] Create Entity Framework Core DbContext
-- [ ] Define database models
-- [ ] Implement migrations
-- [ ] Set up multi-tier caching
-- [ ] Configure logging
-- [ ] Create appsettings structure
+- [x] Create Entity Framework Core DbContext
+- [x] Define database models (10 entities: Item, UniqueItem, Modifier, PassiveNode, PassiveConnection, SkillGem, SupportGem, Ascendancy, SavedBuild, GameDataVersion)
+- [x] Configure entity relationships and constraints
+- [x] Set up multi-tier caching (L1: Memory, L3: SQLite)
+- [x] Implement RateLimiter with token bucket algorithm
+- [x] Configure logging
+- [x] Create appsettings structure
+- [x] Wire up all services in DI container
+- [x] Write comprehensive tests (19/19 passing)
+- [ ] Research ModelContextProtocol C# SDK API (deferred to Phase 7)
+- [ ] Implement MCP server with stdio transport (deferred to Phase 7)
+- [ ] Register tools, resources, and prompts (deferred to Phase 7)
 
-**Key Files to Create**:
-```csharp
-// Data/Poe2DbContext.cs
-public class Poe2DbContext : DbContext
-{
-    public DbSet<Item> Items { get; set; }
-    public DbSet<PassiveNode> PassiveNodes { get; set; }
-    public DbSet<SkillGem> SkillGems { get; set; }
-    // ... more entities
-}
+**Deliverables**:
+- ✅ Poe2DbContext with 10 entity models
+- ✅ CacheService with multi-tier caching (Memory + SQLite)
+- ✅ RateLimiter with token bucket algorithm
+- ✅ Strongly-typed configuration classes
+- ✅ Full DI integration in Program.cs
+- ✅ 19 comprehensive tests covering all infrastructure
 
-// Services/CacheService.cs
-public class CacheService : ICacheService
-{
-    // L1: Memory cache
-    // L2: Redis (optional)
-    // L3: SQLite persistent cache
-}
-
-// Services/RateLimiter.cs
-public class RateLimiter : IRateLimiter
-{
-    // Token bucket algorithm
-    // Per-endpoint configuration
-}
-```
+**Note**: MCP protocol integration tasks moved to Phase 7 (MCP Tools Implementation) to maintain focus on calculator and analyzer development first.
 
 ### Phase 3: API Layer
 
@@ -557,7 +543,7 @@ The original Python implementation is preserved in `poe2-mcp-python/` for refere
 
 ## Current Status
 
-**Overall Progress**: ~15% complete
+**Overall Progress**: ~25% complete
 
 **Recently Completed**:
 - ✅ Project structure
@@ -566,13 +552,18 @@ The original Python implementation is preserved in `poe2-mcp-python/` for refere
 - ✅ EHP calculator with tests
 - ✅ Python code migration
 - ✅ GitHub Copilot Custom Agent for conversion assistance
+- ✅ **Phase 2: Core Infrastructure**
+  - ✅ Entity Framework Core with 10 database models
+  - ✅ Multi-tier cache service (Memory + SQLite)
+  - ✅ Token bucket rate limiter
+  - ✅ DI container configuration
+  - ✅ 19 comprehensive tests
 
 **Next Steps**:
-1. Research MCP SDK API
-2. Implement proper MCP server
-3. Create EF Core DbContext
-4. Port remaining calculators
-5. Implement API clients
+1. Port remaining calculators (Spirit, Damage, Stun)
+2. Port analyzers (Weakness Detector, Gear Evaluator, Build Scorer)
+3. Implement API clients (PoE API, Trade API, Character Fetcher)
+4. Research and implement MCP SDK integration (Phase 7)
 
 **Blockers**: None
 
