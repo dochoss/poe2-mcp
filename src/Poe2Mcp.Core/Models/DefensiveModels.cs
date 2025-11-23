@@ -5,15 +5,32 @@ namespace Poe2Mcp.Core.Models;
 /// </summary>
 public record DefensiveStats
 {
+    // Core defenses
     public int Life { get; init; }
     public int EnergyShield { get; init; }
+    public int Mana { get; init; }
+    public int Spirit { get; init; }
     public int Armor { get; init; }
     public int Evasion { get; init; }
+    
+    // Attributes
+    public int Strength { get; init; }
+    public int Dexterity { get; init; }
+    public int Intelligence { get; init; }
+    
+    // Block and avoidance
     public double BlockChance { get; init; }
+    public double SpellBlockChance { get; init; }
+    public double SpellSuppression { get; init; }
+    
+    // Resistances
     public int FireResistance { get; init; }
     public int ColdResistance { get; init; }
     public int LightningResistance { get; init; }
     public int ChaosResistance { get; init; }
+    
+    // Movement
+    public double MovementSpeed { get; init; }
 }
 
 /// <summary>

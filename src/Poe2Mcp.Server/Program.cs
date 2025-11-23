@@ -30,6 +30,14 @@ var builder = Host.CreateDefaultBuilder(args)
             context.Configuration.GetSection("RateLimiting"));
         services.Configure<FeaturesOptions>(
             context.Configuration.GetSection("Features"));
+        services.Configure<PoeApiOptions>(
+            context.Configuration.GetSection("PoeApi"));
+        services.Configure<PoeNinjaOptions>(
+            context.Configuration.GetSection("PoeNinja"));
+        services.Configure<TradeApiOptions>(
+            context.Configuration.GetSection("TradeApi"));
+        services.Configure<CharacterFetcherOptions>(
+            context.Configuration.GetSection("CharacterFetcher"));
         
         // Register DbContext
         services.AddDbContext<Poe2DbContext>((serviceProvider, options) =>
@@ -46,6 +54,37 @@ var builder = Host.CreateDefaultBuilder(args)
         
         // Register memory cache
         services.AddMemoryCache();
+        
+        // Register HttpClient factory for API clients
+        services.AddHttpClient<IPoeApiClient, PoeApiClient>((serviceProvider, client) =>
+        {
+            var options = context.Configuration.GetSection("PoeApi").Get<PoeApiOptions>()
+                ?? new PoeApiOptions();
+            client.BaseAddress = new Uri(options.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds);
+        });
+        
+        services.AddHttpClient<IPoeNinjaApiClient, PoeNinjaApiClient>((serviceProvider, client) =>
+        {
+            var options = context.Configuration.GetSection("PoeNinja").Get<PoeNinjaOptions>()
+                ?? new PoeNinjaOptions();
+            client.BaseAddress = new Uri(options.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds);
+        });
+        
+        services.AddHttpClient<ITradeApiClient, TradeApiClient>((serviceProvider, client) =>
+        {
+            var options = context.Configuration.GetSection("TradeApi").Get<TradeApiOptions>()
+                ?? new TradeApiOptions();
+            client.BaseAddress = new Uri(options.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds);
+        });
+        
+        services.AddHttpClient<ICharacterFetcher, CharacterFetcher>((serviceProvider, client) =>
+        {
+            client.BaseAddress = new Uri("https://www.pathofexile.com/api");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
         
         // Register core services
         services.AddSingleton<ICacheService, CacheService>();

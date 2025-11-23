@@ -27,3 +27,45 @@ public class DatabaseOptions
     public string ConnectionString { get; set; } = "Data Source=data/poe2_optimizer.db";
     public bool EnableSensitiveDataLogging { get; set; } = false;
 }
+
+/// <summary>
+/// Configuration options for official PoE API
+/// </summary>
+public class PoeApiOptions
+{
+    public string BaseUrl { get; set; } = "https://www.pathofexile.com/api";
+    public int CacheTtlSeconds { get; set; } = 300; // 5 minutes
+    public int RequestTimeoutSeconds { get; set; } = 30;
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set; }
+}
+
+/// <summary>
+/// Configuration options for poe.ninja API
+/// </summary>
+public class PoeNinjaOptions
+{
+    public string BaseUrl { get; set; } = "https://poe.ninja";
+    public int CacheTtlSeconds { get; set; } = 3600; // 1 hour
+    public int RequestTimeoutSeconds { get; set; } = 30;
+}
+
+/// <summary>
+/// Configuration options for trade API
+/// </summary>
+public class TradeApiOptions
+{
+    public string BaseUrl { get; set; } = "https://www.pathofexile.com";
+    public int RequestTimeoutSeconds { get; set; } = 30;
+    public string? PoeSessionId { get; set; }
+    public int RequestDelayMilliseconds { get; set; } = 500;
+}
+
+/// <summary>
+/// Configuration options for character fetcher
+/// </summary>
+public class CharacterFetcherOptions
+{
+    public int MaxLadderSearchDepth { get; set; } = 1000;
+    public int LadderPageSize { get; set; } = 200;
+}
