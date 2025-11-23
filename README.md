@@ -197,6 +197,24 @@ Contributions are welcome! Please:
 4. Ensure all tests pass
 5. Submit a pull request
 
+### Using the GitHub Copilot Custom Agent
+
+This repository includes a specialized GitHub Copilot Custom Agent to assist with Python to C# conversion. Located at `.github/agents/convert-to-csharp.md`, the agent provides:
+
+- Expert guidance on converting Python code to C# .NET 10
+- Project-specific context and conversion patterns
+- Best practices for MCP server development
+- Code review and optimization suggestions
+
+**To use the agent in GitHub Copilot:**
+```
+@convert_to_csharp help me convert the damage calculator to C#
+@convert_to_csharp review this MCP tool implementation
+@convert_to_csharp what's the best way to implement caching?
+```
+
+See `CONVERSION_PLAN.md` for the current conversion status and roadmap.
+
 ## License
 
 Private project for personal use.

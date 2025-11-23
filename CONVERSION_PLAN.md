@@ -504,6 +504,29 @@ Each phase is complete when:
 
 ## Notes
 
+### GitHub Copilot Custom Agent
+
+A specialized **GitHub Copilot Custom Agent** has been created to assist with the Python to C# conversion. The agent is located at `.github/agents/convert-to-csharp.md` and provides:
+
+- **Expert C# conversion guidance** - Specialized knowledge of Python to C# patterns
+- **Project-specific context** - Understands this project structure and CONVERSION_PLAN.md
+- **Code examples** - Comprehensive examples for common conversion patterns
+- **Best practices enforcement** - Ensures .NET 10 and C# 14 best practices
+- **Phase-aware assistance** - Knows which phase we're in and what to prioritize
+
+**How to use the agent:**
+1. In GitHub Copilot Chat, mention `@convert_to_csharp` to invoke the agent
+2. Ask for help converting specific Python files or features
+3. Request code reviews of converted C# code
+4. Get guidance on MCP SDK usage, EF Core, or .NET patterns
+
+**Example prompts:**
+- `@convert_to_csharp help me convert the spirit calculator from Python to C#`
+- `@convert_to_csharp review my EF Core DbContext implementation`
+- `@convert_to_csharp what's the best way to implement this MCP tool?`
+
+The agent has full access to the repository and understands the entire conversion plan, making it an invaluable assistant for this project.
+
 ### ModelContextProtocol SDK Research Needed
 The C# SDK for MCP is relatively new. Key areas to research:
 1. Server factory and initialization
@@ -542,6 +565,7 @@ The original Python implementation is preserved in `poe2-mcp-python/` for refere
 - ✅ NuGet packages
 - ✅ EHP calculator with tests
 - ✅ Python code migration
+- ✅ GitHub Copilot Custom Agent for conversion assistance
 
 **Next Steps**:
 1. Research MCP SDK API
