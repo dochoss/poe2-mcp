@@ -146,8 +146,12 @@ public class CriticalStrikeConfig
     public double CritChance { get; set; } = 0.0;
     
     /// <summary>
-    /// Critical strike damage multiplier (100 = +100% in PoE2).
+    /// Critical strike damage multiplier.
     /// </summary>
+    /// <remarks>
+    /// In PoE2, the base critical strike multiplier is +100% (i.e., CritMultiplier = 100.0 means critical strikes deal 2x damage).
+    /// This differs from PoE1, where the base multiplier is +150% (2.5x damage).
+    /// </remarks>
     public double CritMultiplier { get; set; } = 100.0;
     
     /// <summary>
