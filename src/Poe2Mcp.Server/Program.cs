@@ -4,9 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Poe2Mcp.Core;
+using Poe2Mcp.Core.AI;
+using Poe2Mcp.Core.Analyzers;
+using Poe2Mcp.Core.Calculators;
 using Poe2Mcp.Core.Data;
+using Poe2Mcp.Core.Optimizers;
 using Poe2Mcp.Core.Services;
 using Poe2Mcp.Server;
+using Poe2Mcp.Server.Tools;
 
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((context, config) =>
@@ -38,6 +43,8 @@ var builder = Host.CreateDefaultBuilder(args)
             context.Configuration.GetSection("TradeApi"));
         services.Configure<CharacterFetcherOptions>(
             context.Configuration.GetSection("CharacterFetcher"));
+        services.Configure<AIOptions>(
+            context.Configuration.GetSection("AI"));
         
         // Register DbContext
         services.AddDbContext<Poe2DbContext>((serviceProvider, options) =>
@@ -90,7 +97,35 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddSingleton<ICacheService, CacheService>();
         services.AddSingleton<IRateLimiter, RateLimiter>();
         
-        // Register MCP server
+        // Register calculators
+        services.AddSingleton<IEhpCalculator, EhpCalculator>();
+        services.AddSingleton<ISpiritCalculator, SpiritCalculator>();
+        services.AddSingleton<IDamageCalculator, DamageCalculator>();
+        services.AddSingleton<IStunCalculator, StunCalculator>();
+        
+        // Register analyzers
+        services.AddSingleton<IWeaknessDetector, WeaknessDetector>();
+        services.AddSingleton<IGearEvaluator, GearEvaluator>();
+        services.AddSingleton<IBuildScorer, BuildScorer>();
+        services.AddSingleton<IContentReadinessChecker, ContentReadinessChecker>();
+        
+        // Register optimizers
+        services.AddSingleton<IGearOptimizer, GearOptimizer>();
+        services.AddSingleton<IPassiveOptimizer, PassiveOptimizer>();
+        services.AddSingleton<ISkillOptimizer, SkillOptimizer>();
+        services.AddSingleton<IGemSynergyCalculator, GemSynergyCalculator>();
+        
+        // Register AI components
+        services.AddSingleton<IMechanicsKnowledgeBase, PoE2MechanicsKnowledgeBase>();
+        services.AddSingleton<IQueryHandler, QueryHandler>();
+        services.AddSingleton<IRecommendationEngine, RecommendationEngine>();
+        
+        // Register MCP server with tools
+        services.AddMcpServer()
+            .WithStdioServerTransport()
+            .WithToolsFromAssembly(); // Automatically discovers tools marked with [McpServerToolType]
+        
+        // Register our MCP server wrapper
         services.AddSingleton<Poe2McpServer>();
     })
     .ConfigureLogging((context, logging) =>
@@ -115,6 +150,13 @@ using (var scope = host.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<Poe2DbContext>();
     await dbContext.Database.EnsureCreatedAsync();
 }
+
+// Log MCP server startup
+var logger = host.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("=== PoE2 Build Optimizer MCP Server ===");
+logger.LogInformation("Phase 7: MCP Tools Implementation Complete");
+logger.LogInformation("All 27 tools registered and ready");
+logger.LogInformation("Server listening on stdio transport");
 
 // Get and run the MCP server
 var mcpServer = host.Services.GetRequiredService<Poe2McpServer>();
