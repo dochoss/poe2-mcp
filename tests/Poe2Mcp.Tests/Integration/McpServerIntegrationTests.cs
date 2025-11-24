@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ModelContextProtocol.Server;
 using Poe2Mcp.Server.Tools;
 using Xunit;
 using FluentAssertions;
@@ -12,6 +13,9 @@ namespace Poe2Mcp.Tests.Integration;
 /// </summary>
 public class McpServerIntegrationTests
 {
+    private static readonly Type McpServerToolTypeAttribute = typeof(McpServerToolTypeAttribute);
+    private static readonly Type McpServerToolAttribute = typeof(McpServerToolAttribute);
+
     [Fact]
     public void McpServer_Should_RegisterAllTools()
     {
@@ -32,7 +36,7 @@ public class McpServerIntegrationTests
         var toolsType = typeof(Poe2Tools);
 
         // Act
-        var typeAttribute = toolsType.GetCustomAttributes(typeof(ModelContextProtocol.Server.McpServerToolTypeAttribute), false);
+        var typeAttribute = toolsType.GetCustomAttributes(McpServerToolTypeAttribute, false);
 
         // Assert
         typeAttribute.Should().NotBeEmpty("Poe2Tools should have McpServerToolType attribute");
@@ -46,7 +50,7 @@ public class McpServerIntegrationTests
 
         // Act
         var toolMethods = toolsType.GetMethods()
-            .Where(m => m.GetCustomAttributes(typeof(ModelContextProtocol.Server.McpServerToolAttribute), false).Any())
+            .Where(m => m.GetCustomAttributes(McpServerToolAttribute, false).Any())
             .ToList();
 
         // Assert
@@ -54,8 +58,8 @@ public class McpServerIntegrationTests
         
         // Verify specific tools exist
         var toolNames = toolMethods
-            .SelectMany(m => m.GetCustomAttributes(typeof(ModelContextProtocol.Server.McpServerToolAttribute), false)
-                .Cast<ModelContextProtocol.Server.McpServerToolAttribute>())
+            .SelectMany(m => m.GetCustomAttributes(McpServerToolAttribute, false)
+                .Cast<McpServerToolAttribute>())
             .Select(attr => attr.Name)
             .ToList();
 
