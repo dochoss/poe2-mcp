@@ -700,4 +700,4 @@ The original Python implementation is preserved in `poe2-mcp-python/` for refere
 
 ---
 
-Last Updated: 2025-11-24 (Phase 7: MCP Tools Implementation complete - 227 tests passing, all 27 tools registered)
+Last Updated: 2025-11-24 (Phase 7: MCP Tools Implementation complete - 231 tests passing, all 27 tools registered)
