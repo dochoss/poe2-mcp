@@ -121,6 +121,7 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IRecommendationEngine, RecommendationEngine>();
         
         // Register MCP server with tools
+        services.AddSingleton<Poe2Tools>();
         services.AddMcpServer()
             .WithStdioServerTransport()
             .WithToolsFromAssembly(); // Automatically discovers tools marked with [McpServerToolType]
