@@ -279,7 +279,7 @@ public class Poe2Tools
     [McpServerTool(Name = "natural_language_query", Title = "Natural Language Query")]
     public Task<object> NaturalLanguageQueryAsync(string query)
     {
-        _logger.LogInformation("Tool: natural_language_query - Query:{Query}", query?.Substring(0, Math.Min(50, query?.Length ?? 0)));
+        _logger.LogInformation("Tool: natural_language_query - Query:{Query}", query == null ? "null" : query.Length > 50 ? query.Substring(0, 50) : query);
         return Task.FromResult<object>(new
         {
             success = true,
