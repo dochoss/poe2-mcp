@@ -27,7 +27,7 @@ public class EhpCalculator : IEhpCalculator
     public static double CalculateArmorDamageReduction(int armor, int hitSize)
     {
         if (armor <= 0 || hitSize <= 0) return 0;
-        return armor / (double)(armor + 10 * hitSize);
+        return armor / (double)(armor + 10L * hitSize);
     }
 
     /// <summary>
