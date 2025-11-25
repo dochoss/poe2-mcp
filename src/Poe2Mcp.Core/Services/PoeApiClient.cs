@@ -69,7 +69,14 @@ public class PoeApiClient : IPoeApiClient
 
         try
         {
-            var url = $"/character/{accountName}/{characterName}";
+            // According to official PoE API docs: GET /character[/<realm>]/<name>
+            // The realm can be: xbox, sony, or poe2. If omitted, PoE1 PC realm is assumed.
+            // The API returns: { "character": Character }
+            // Note: The account is determined by OAuth authentication, not from the URL
+            var url = !string.IsNullOrWhiteSpace(_options.Realm) && _options.Realm != "pc"
+                ? $"/character/{_options.Realm}/{characterName}"
+                : $"/character/{characterName}";
+                
             _logger.LogInformation("Fetching character {Character} from account {Account}", characterName, accountName);
 
             var response = await _httpClient.GetAsync(url, cancellationToken);
@@ -85,10 +92,18 @@ public class PoeApiClient : IPoeApiClient
                 _logger.LogWarning("Character {Character} profile is private", characterName);
                 return null;
             }
+            
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                _logger.LogWarning("Unauthorized when fetching character (OAuth token may be invalid)");
+                return null;
+            }
 
             response.EnsureSuccessStatusCode();
 
-            var characterData = await response.Content.ReadFromJsonAsync<CharacterData>(_jsonOptions, cancellationToken);
+            // The API returns: { "character": Character }
+            var responseData = await response.Content.ReadFromJsonAsync<CharacterResponse>(_jsonOptions, cancellationToken);
+            var characterData = responseData?.Character;
 
             // Cache the result
             if (characterData != null)
@@ -138,14 +153,39 @@ public class PoeApiClient : IPoeApiClient
 
         try
         {
-            var url = $"/account/{accountName}/characters";
+            // According to official PoE API docs: GET /character[/<realm>]
+            // The realm can be: xbox, sony, or poe2. If omitted, PoE1 PC realm is assumed.
+            // The API returns: { "characters": [array of Character] }
+            // Note: The account is determined by OAuth authentication, not from the URL
+            var url = "/character";
+            
+            // If realm preference is configured, append it
+            if (!string.IsNullOrWhiteSpace(_options.Realm) && _options.Realm != "pc")
+            {
+                url = $"/character/{_options.Realm}";
+            }
+            
             _logger.LogInformation("Fetching characters for account {Account}", accountName);
 
             var response = await _httpClient.GetAsync(url, cancellationToken);
+            
+            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                _logger.LogWarning("Access forbidden when fetching characters (authentication may be required)");
+                return [];
+            }
+            
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                _logger.LogWarning("Unauthorized when fetching characters (OAuth token may be invalid)");
+                return [];
+            }
+            
             response.EnsureSuccessStatusCode();
 
-            var characters = await response.Content.ReadFromJsonAsync<List<CharacterData>>(_jsonOptions, cancellationToken)
-                ?? new List<CharacterData>();
+            // The API returns: { "characters": [array of Character] }
+            var responseData = await response.Content.ReadFromJsonAsync<CharacterListResponse>(_jsonOptions, cancellationToken);
+            var characters = responseData?.Characters ?? [];
 
             // Cache the result
             await _cacheService.SetAsync(
@@ -158,10 +198,15 @@ public class PoeApiClient : IPoeApiClient
 
             return characters;
         }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP error fetching account characters for {Account}: {Message}", accountName, ex.Message);
+            return [];
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching account characters for {Account}: {Message}", accountName, ex.Message);
-            return Array.Empty<CharacterData>();
+            return [];
         }
     }
 

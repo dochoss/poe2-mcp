@@ -17,65 +17,99 @@ public class McpServerIntegrationTests
     private static readonly Type McpServerToolAttribute = typeof(McpServerToolAttribute);
 
     [Fact]
-    public void McpServer_Should_RegisterAllTools()
+    public void McpServer_Should_RegisterAllToolServices()
     {
         // Arrange
         var host = CreateTestHost();
 
-        // Act
-        var toolsService = host.Services.GetService<Poe2Tools>();
+        // Act & Assert - Check that all tool service classes are registered
+        var serverTools = host.Services.GetService<ServerTools>();
+        var characterTools = host.Services.GetService<CharacterTools>();
+        var analyzerTools = host.Services.GetService<AnalyzerTools>();
+        var calculatorTools = host.Services.GetService<CalculatorTools>();
+        var optimizerTools = host.Services.GetService<OptimizerTools>();
+        var aiTools = host.Services.GetService<AITools>();
+        var utilityTools = host.Services.GetService<UtilityTools>();
 
-        // Assert
-        toolsService.Should().NotBeNull("Poe2Tools should be registered in DI container");
+        serverTools.Should().NotBeNull("ServerTools should be registered in DI container");
+        characterTools.Should().NotBeNull("CharacterTools should be registered in DI container");
+        analyzerTools.Should().NotBeNull("AnalyzerTools should be registered in DI container");
+        calculatorTools.Should().NotBeNull("CalculatorTools should be registered in DI container");
+        optimizerTools.Should().NotBeNull("OptimizerTools should be registered in DI container");
+        aiTools.Should().NotBeNull("AITools should be registered in DI container");
+        utilityTools.Should().NotBeNull("UtilityTools should be registered in DI container");
     }
 
     [Fact]
-    public void Poe2Tools_Should_HaveCorrectAttributes()
+    public void AllToolClasses_Should_HaveCorrectAttributes()
     {
         // Arrange
-        var toolsType = typeof(Poe2Tools);
+        var toolTypes = new[]
+        {
+            typeof(ServerTools),
+            typeof(CharacterTools),
+            typeof(AnalyzerTools),
+            typeof(CalculatorTools),
+            typeof(OptimizerTools),
+            typeof(AITools),
+            typeof(UtilityTools)
+        };
 
-        // Act
-        var typeAttribute = toolsType.GetCustomAttributes(McpServerToolTypeAttribute, false);
-
-        // Assert
-        typeAttribute.Should().NotBeEmpty("Poe2Tools should have McpServerToolType attribute");
+        // Act & Assert
+        foreach (var toolType in toolTypes)
+        {
+            var typeAttribute = toolType.GetCustomAttributes(McpServerToolTypeAttribute, false);
+            typeAttribute.Should().NotBeEmpty($"{toolType.Name} should have McpServerToolType attribute");
+        }
     }
 
     [Fact]
-    public void Poe2Tools_Should_Have27ToolMethods()
+    public void AllToolClasses_Should_Have27ToolMethods()
     {
         // Arrange
-        var toolsType = typeof(Poe2Tools);
+        var toolTypes = new[]
+        {
+            typeof(ServerTools),
+            typeof(CharacterTools),
+            typeof(AnalyzerTools),
+            typeof(CalculatorTools),
+            typeof(OptimizerTools),
+            typeof(AITools),
+            typeof(UtilityTools)
+        };
 
-        // Act
-        var toolMethods = toolsType.GetMethods()
-            .Where(m => m.GetCustomAttributes(McpServerToolAttribute, false).Any())
+        // Act - Collect all tool methods from all classes
+        var allToolMethods = toolTypes
+            .SelectMany(type => type.GetMethods()
+                .Where(m => m.GetCustomAttributes(McpServerToolAttribute, false).Any()))
             .ToList();
 
         // Assert
-        toolMethods.Should().HaveCount(27, "All 27 tools should be defined");
+        allToolMethods.Should().HaveCount(27, "All 27 tools should be defined across all tool classes");
         
         // Verify specific tools exist
-        var toolNames = toolMethods
+        var toolNames = allToolMethods
             .SelectMany(m => m.GetCustomAttributes(McpServerToolAttribute, false)
                 .Cast<McpServerToolAttribute>())
             .Select(attr => attr.Name)
             .ToList();
 
-        toolNames.Should().Contain("analyze_character");
-        toolNames.Should().Contain("calculate_character_ehp");
-        toolNames.Should().Contain("optimize_gear");
-        toolNames.Should().Contain("natural_language_query");
-        toolNames.Should().Contain("health_check");
+        // Check for key tools from different classes
+        toolNames.Should().Contain("health_check"); // ServerTools
+        toolNames.Should().Contain("analyze_character"); // CharacterTools
+        toolNames.Should().Contain("calculate_character_ehp"); // CalculatorTools
+        toolNames.Should().Contain("optimize_gear"); // OptimizerTools
+        toolNames.Should().Contain("natural_language_query"); // AITools
+        toolNames.Should().Contain("detect_character_weaknesses"); // AnalyzerTools
+        toolNames.Should().Contain("search_trade_items"); // UtilityTools
     }
 
     [Fact]
-    public async Task Poe2Tools_HealthCheck_Should_ReturnSuccess()
+    public async Task ServerTools_HealthCheck_Should_ReturnSuccess()
     {
         // Arrange
         var host = CreateTestHost();
-        var tools = host.Services.GetRequiredService<Poe2Tools>();
+        var tools = host.Services.GetRequiredService<ServerTools>();
 
         // Act
         var result = await tools.HealthCheckAsync();
@@ -105,8 +139,14 @@ public class McpServerIntegrationTests
                 // Register minimal services needed for testing
                 services.AddLogging(builder => builder.AddConsole());
                 
-                // Register tools
-                services.AddSingleton<Poe2Tools>();
+                // Register all tool services
+                services.AddSingleton<ServerTools>();
+                services.AddSingleton<CharacterTools>();
+                services.AddSingleton<AnalyzerTools>();
+                services.AddSingleton<CalculatorTools>();
+                services.AddSingleton<OptimizerTools>();
+                services.AddSingleton<AITools>();
+                services.AddSingleton<UtilityTools>();
             })
             .Build();
     }

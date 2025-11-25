@@ -63,7 +63,7 @@ public class PoeApiClientTests : IDisposable
             It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var responseData = new CharacterData
+        var characterData = new CharacterData
         {
             Name = characterName,
             Account = accountName,
@@ -71,7 +71,18 @@ public class PoeApiClientTests : IDisposable
             Class = "Warrior"
         };
 
-        var jsonResponse = JsonSerializer.Serialize(responseData);
+        // API now returns: { "character": CharacterData }
+        var responseData = new CharacterResponse
+        {
+            Character = characterData
+        };
+
+        var jsonResponse = JsonSerializer.Serialize(responseData, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
         _mockHttpMessageHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",

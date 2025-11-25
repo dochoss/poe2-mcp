@@ -115,3 +115,21 @@ public class LadderEntry
     public bool Online { get; set; }
     public long Experience { get; set; }
 }
+
+/// <summary>
+/// Response from the official PoE API /character endpoint
+/// Returns a wrapper object with a "characters" array
+/// </summary>
+public class CharacterListResponse
+{
+    public List<CharacterData> Characters { get; set; } = new();
+}
+
+/// <summary>
+/// Response from the official PoE API /character/<name> endpoint
+/// Returns a wrapper object with a "character" property
+/// </summary>
+public class CharacterResponse
+{
+    public CharacterData? Character { get; set; }
+}

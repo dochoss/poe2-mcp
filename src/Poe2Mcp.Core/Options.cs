@@ -38,6 +38,12 @@ public class PoeApiOptions
     public int RequestTimeoutSeconds { get; set; } = 30;
     public string? ClientId { get; set; }
     public string? ClientSecret { get; set; }
+    
+    /// <summary>
+    /// Realm to use for API calls. Can be: pc (default), xbox, sony, or poe2.
+    /// If omitted or "pc", PoE1 PC realm is assumed.
+    /// </summary>
+    public string? Realm { get; set; } = "poe2";
 }
 
 /// <summary>
@@ -76,8 +82,9 @@ public class CharacterFetcherOptions
 public class AIOptions
 {
     public string? ApiKey { get; set; }
-    public string Model { get; set; } = "claude-3-5-sonnet-20241022";
-    public int MaxTokens { get; set; } = 1024;
+    public string? Endpoint { get; set; }
+    public string Model { get; set; } = "gpt-oss-120b";
+    public int? MaxTokens { get => field is null or 0 ? int.MaxValue : field.Value; set; }
     public double Temperature { get; set; } = 0.7;
     public int RequestTimeoutSeconds { get; set; } = 30;
 }

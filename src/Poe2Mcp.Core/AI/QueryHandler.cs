@@ -67,10 +67,10 @@ public class QueryHandler : IQueryHandler
 
             // Build the system prompt
             var systemPrompt = """
-You are an expert Path of Exile 2 build advisor.
-Help players optimize their builds by providing actionable, specific advice.
-Focus on practical recommendations that can be implemented immediately.
-""";
+              You are an expert Path of Exile 2 build advisor.
+              Help players optimize their builds by providing actionable, specific advice.
+              Focus on practical recommendations that can be implemented immediately.
+              """;
 
             // Build user message
             var userMessage = query;
@@ -82,8 +82,8 @@ Focus on practical recommendations that can be implemented immediately.
             // Create chat messages
             var messages = new List<ChatMessage>
             {
-                new ChatMessage(ChatRole.System, systemPrompt),
-                new ChatMessage(ChatRole.User, userMessage)
+                new(ChatRole.System, systemPrompt),
+                new(ChatRole.User, userMessage)
             };
 
             // Call the AI chat client
@@ -96,11 +96,11 @@ Focus on practical recommendations that can be implemented immediately.
                 },
                 cancellationToken);
 
-            var responseText = string.IsNullOrWhiteSpace(response.Text) 
-                ? "No response generated." 
+            var responseText = string.IsNullOrWhiteSpace(response.Text)
+                ? "No response generated."
                 : response.Text;
 
-            _logger.LogInformation("AI query handled successfully. Response length: {Length} characters", 
+            _logger.LogInformation("AI query handled successfully. Response length: {Length} characters",
                 responseText.Length);
 
             return responseText;

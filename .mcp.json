@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "PoELocal": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "C:\\Users\\Bo\\source\\repos\\poe2-mcp\\src\\Poe2Mcp.Server\\bin\\Debug\\net10.0\\Poe2Mcp.Server.exe",
+        "--http"
+      ]
+    },
+    "PoELocalHttp": {
+      "type": "http",
+      "url": "http://localhost:5000/mcp"
+    }
+  }
+}
