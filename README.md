@@ -8,25 +8,33 @@ This is the C# .NET 10 version of the PoE2 Build Optimizer MCP server. The origi
 
 ### Key Features
 
-- **MCP Server**: Full implementation using ModelContextProtocol NuGet package
+- **MCP Server**: Full implementation using ModelContextProtocol NuGet package with 27 tools
 - **Character Analysis**: Fetch and analyze character data from PoE API
 - **Build Optimization**: AI-powered recommendations for gear, passives, and skills
-- **EHP Calculator**: Accurate Effective Health Pool calculations
-- **Spirit System**: Analysis of PoE2's Spirit mechanic
-- **Damage Calculations**: Comprehensive DPS breakdowns
+- **EHP Calculator**: Accurate Effective Health Pool calculations for all damage types
+- **Spirit System**: Complete analysis of PoE2's Spirit mechanic with optimization
+- **Damage Calculations**: Comprehensive DPS breakdowns with increased/more modifier support
+- **Stun Calculator**: Light stun, heavy stun, and crushing blow mechanics
 - **Trade Integration**: Search for gear upgrades on the official trade site
 - **AI Integration**: Natural language queries using Microsoft.Extensions.AI
+- **Game Mechanics**: Knowledge base with 6 comprehensive mechanics (freeze, shock, stun, crit, spirit, increased_vs_more)
+
+## Documentation
+
+- **[API Documentation](docs/API.md)** - Complete tool reference
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment instructions
+- **[Conversion Plan](CONVERSION_PLAN.md)** - Python to C# migration status
 
 ## Technology Stack
 
 - **.NET 10** (LTS Release)
 - **C# 14**
-- **ModelContextProtocol** - Official MCP SDK for .NET
+- **ModelContextProtocol v0.4.0** - Official MCP SDK for .NET
 - **Entity Framework Core 10** - Database ORM
 - **Microsoft.Extensions.Hosting** - Dependency injection and hosting
 - **Microsoft.Extensions.AI** - AI service integration
 - **SQLite** - Local database storage
-- **xUnit** - Testing framework
+- **xUnit** - Testing framework (240+ tests)
 
 ## Quick Start
 
@@ -34,6 +42,7 @@ This is the C# .NET 10 version of the PoE2 Build Optimizer MCP server. The origi
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
 - Git
+- Docker (optional, for containerized deployment)
 
 ### Installation
 
@@ -52,6 +61,19 @@ dotnet build
 cd src/Poe2Mcp.Server
 dotnet run
 ```
+
+### Docker Deployment
+
+```bash
+# Build and run with Docker
+docker build -t poe2-mcp-server .
+docker run -it -e AI__ApiKey=your-key poe2-mcp-server
+
+# Or use Docker Compose
+docker-compose up -d
+```
+
+See [Deployment Guide](docs/DEPLOYMENT.md) for detailed instructions.
 
 ### Configuration
 
@@ -100,16 +122,24 @@ poe2-mcp/
 │   ├── Poe2Mcp.Server/        # MCP server application
 │   │   ├── Program.cs          # Entry point and host configuration
 │   │   ├── McpServer.cs        # MCP server implementation
-│   │   └── Tools/              # MCP tool implementations
+│   │   └── Tools/              # MCP tool implementations (27 tools)
 │   └── Poe2Mcp.Core/          # Core business logic
-│       ├── Calculators/        # EHP, damage, spirit calculators
-│       ├── Analyzers/          # Build analyzers and optimizers
+│       ├── Calculators/        # EHP, damage, spirit, stun calculators
+│       ├── Analyzers/          # Build analyzers (weakness, gear, content readiness)
+│       ├── Optimizers/         # Gear, passive, skill optimizers
 │       ├── Data/               # Database models and context
 │       ├── Services/           # API clients and services
 │       └── AI/                 # AI integration and query handling
 ├── tests/
-│   └── Poe2Mcp.Tests/         # Unit and integration tests
+│   └── Poe2Mcp.Tests/         # Unit and integration tests (240+ tests)
+├── benchmarks/
+│   └── Poe2Mcp.Benchmarks/    # Performance benchmarks
+├── docs/                       # Documentation
+│   ├── API.md                  # Tool reference
+│   └── DEPLOYMENT.md           # Deployment guide
 ├── poe2-mcp-python/           # Original Python implementation
+├── Dockerfile                  # Docker image definition
+├── docker-compose.yml          # Docker Compose configuration
 └── Poe2Mcp.sln                # Solution file
 ```
 
@@ -119,11 +149,14 @@ poe2-mcp/
 # Build the entire solution
 dotnet build
 
-# Run all tests
+# Run all tests (240+ tests)
 dotnet test
 
 # Run with code coverage
 dotnet test /p:CollectCoverage=true
+
+# Run performance benchmarks
+dotnet run --project benchmarks/Poe2Mcp.Benchmarks -c Release
 
 # Publish for deployment
 dotnet publish -c Release -o ./publish
@@ -131,18 +164,39 @@ dotnet publish -c Release -o ./publish
 
 ## MCP Tools
 
-The server exposes the following MCP tools:
+The server exposes 27 MCP tools organized into categories:
 
-- `analyze_character` - Analyze a PoE2 character
+**Character Tools (2):**
+- `analyze_character` - Full character analysis
+- `compare_to_top_players` - Compare with ladder
+
+**Calculator Tools (4):**
 - `calculate_character_ehp` - Calculate Effective Health Pool
-- `detect_character_weaknesses` - Find build weaknesses
-- `optimize_build_metrics` - Comprehensive build optimization
-- `search_trade_items` - Find gear upgrades on trade site
-- `find_best_supports` - Optimal support gem combinations
-- `explain_mechanic` - Explain PoE2 game mechanics
-- `compare_items` - Compare two items
-- `analyze_damage_scaling` - Identify damage bottlenecks
-- `check_content_readiness` - Check if ready for specific content
+- `analyze_spirit_usage` - Spirit analysis
+- `analyze_stun_vulnerability` - Stun mechanics
+- `calculate_dps` - DPS calculations
+
+**Analyzer Tools (4):**
+- `detect_character_weaknesses` - Find build issues
+- `evaluate_gear_upgrade` - Compare items
+- `optimize_build_metrics` - Comprehensive optimization
+- `check_content_readiness` - Content tier checker
+
+**Optimizer Tools (4):**
+- `optimize_gear` - Gear recommendations
+- `optimize_passive_tree` - Passive suggestions
+- `optimize_skills` - Skill setup optimization
+- `find_best_supports` - Support gem combinations
+
+**AI Tools (3):**
+- `natural_language_query` - AI-powered Q&A
+- `explain_mechanic` - Game mechanics explanation
+- `compare_items` - AI item comparison
+
+**Utility Tools (10):**
+- `health_check`, `clear_cache`, `search_trade_items`, `import_pob`, `export_pob`, `get_pob_code`, `setup_trade_auth`, `compare_builds`, `search_items`, `analyze_damage_scaling`
+
+See [API Documentation](docs/API.md) for complete tool reference.
 
 ## Development
 
