@@ -1,0 +1,26 @@
+services:
+  poe2-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: poe2-mcp-server
+    volumes:
+      # Mount data directory for persistent SQLite database
+      - poe2mcp-data:/app/data
+      # Optionally mount custom configuration
+      - ./appsettings.docker.json:/app/appsettings.json:ro
+    environment:
+      # Database configuration
+      - Database__ConnectionString=Data Source=/app/data/poe2_optimizer.db
+      # AI configuration (set your API key)
+      - AI__ApiKey=${AI_API_KEY:-}
+      - AI__Model=${AI_MODEL:-claude-3-5-sonnet-20241022}
+      # Logging
+      - Logging__LogLevel__Default=Information
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  poe2mcp-data:
+    driver: local
