@@ -405,7 +405,7 @@ Built with data from:
 
 ## Comparison with Python Version
 
-The original Python implementation is preserved in the `poe2-mcp-python` folder. The C# version provides:
+The original Python implementation is preserved in the `poe2-mcp-python` folder and can be found on Github [here](https://github.com/HivemindOverlord/poe2-mcp). The C# version provides:
 
 - **Better Performance**: Compiled code and optimized runtime
 - **Strong Typing**: Compile-time type safety with C# 14 features
