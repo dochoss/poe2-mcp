@@ -1,0 +1,25 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
+    <File Path="CONVERSION_PLAN.md" />
+    <File Path="docker-compose.yml" />
+    <File Path="Dockerfile" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/" />
+  <Folder Name="/Solution Items/.github/agents/">
+    <File Path=".github/agents/convert-to-csharp.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Poe2Mcp.Core/Poe2Mcp.Core.csproj" />
+    <Project Path="src/Poe2Mcp.Server/Poe2Mcp.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Poe2Mcp.Tests/Poe2Mcp.Tests.csproj" />
+  </Folder>
+</Solution>
