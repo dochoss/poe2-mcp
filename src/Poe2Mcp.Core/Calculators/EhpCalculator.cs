@@ -8,6 +8,29 @@ using Poe2Mcp.Core.Models;
 public class EhpCalculator : IEhpCalculator
 {
     /// <summary>
+    /// Calculate damage reduction multiplier from resistance.
+    /// </summary>
+    /// <param name="resistance">The resistance value (can be negative)</param>
+    /// <returns>Multiplier for effective HP calculation</returns>
+    public static double CalculateResistanceMultiplier(int resistance)
+    {
+        var cappedResistance = Math.Min(resistance, 75);
+        return 100.0 / (100.0 - cappedResistance);
+    }
+
+    /// <summary>
+    /// Calculate armor damage reduction against a specific hit size.
+    /// </summary>
+    /// <param name="armor">Total armor value</param>
+    /// <param name="hitSize">Expected damage of the hit</param>
+    /// <returns>Damage reduction as decimal (0.5 = 50%)</returns>
+    public static double CalculateArmorDamageReduction(int armor, int hitSize)
+    {
+        if (armor <= 0 || hitSize <= 0) return 0;
+        return armor / (double)(armor + 10L * hitSize);
+    }
+
+    /// <summary>
     /// Calculate EHP against all damage types and return as dictionary.
     /// </summary>
     public Dictionary<string, double> CalculateEhp(
@@ -53,15 +76,13 @@ public class EhpCalculator : IEhpCalculator
         var resistance = GetResistance(stats, damageType);
         
         // Calculate damage mitigation from resistance (capped at 75%)
-        var cappedResistance = Math.Min(resistance, 75);
-        var resistMultiplier = 100.0 / (100.0 - cappedResistance);
+        var resistMultiplier = CalculateResistanceMultiplier(resistance);
         
         // Calculate armor mitigation for physical damage
         double armorMultiplier = 1.0;
         if (damageType == DamageType.Physical && stats.Armor > 0)
         {
-            // PoE2 armor formula: Reduction = Armor / (Armor + 10 * Damage)
-            var reduction = stats.Armor / (double)(stats.Armor + 10 * expectedHitSize);
+            var reduction = CalculateArmorDamageReduction(stats.Armor, expectedHitSize);
             armorMultiplier = 1.0 / (1.0 - reduction);
         }
         
@@ -82,7 +103,7 @@ public class EhpCalculator : IEhpCalculator
             DamageType = damageType,
             EffectiveHealthPool = ehp,
             Multiplier = totalMultiplier,
-            Details = $"Raw Pool: {rawPool}, Resist: {cappedResistance}%, Multiplier: {totalMultiplier:F2}x"
+            Details = $"Raw Pool: {rawPool}, Resist: {Math.Min(resistance, 75)}%, Multiplier: {totalMultiplier:F2}x"
         };
     }
 
