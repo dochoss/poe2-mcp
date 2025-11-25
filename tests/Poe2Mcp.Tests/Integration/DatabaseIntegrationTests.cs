@@ -260,11 +260,12 @@ public class DatabaseIntegrationTests : IDisposable
     [Fact]
     public async Task ConcurrentOperations_AreHandledCorrectly()
     {
-        // Arrange
+        // Arrange - Use a unique database name to ensure test isolation
         var tasks = new List<Task>();
         var databaseName = $"ConcurrentDb_{Guid.NewGuid()}";
         
-        // Create a shared service provider with a single named database
+        // Create a dedicated service provider with a shared in-memory database
+        // This ensures all concurrent operations write to the same database instance
         var services = new ServiceCollection();
         services.AddDbContext<Poe2DbContext>(options =>
             options.UseInMemoryDatabase(databaseName));

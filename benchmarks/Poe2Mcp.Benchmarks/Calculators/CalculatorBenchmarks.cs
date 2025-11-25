@@ -214,6 +214,7 @@ public class StunCalculatorBenchmarks
 {
     private StunCalculator _calculator = null!;
     private string _entityId = "benchmark_entity";
+    private int _counter = 0;
 
     [GlobalSetup]
     public void Setup()
@@ -225,6 +226,7 @@ public class StunCalculatorBenchmarks
     public void Cleanup()
     {
         _calculator.RemoveEntity(_entityId);
+        _counter = 0;
     }
 
     [Benchmark]
@@ -239,21 +241,25 @@ public class StunCalculatorBenchmarks
     [Benchmark]
     public HeavyStunResult CalculateHeavyStunBuildup()
     {
+        // Use incrementing counter instead of Guid for consistent benchmarks
+        var entityId = $"{_entityId}_{_counter++}";
         return _calculator.CalculateHeavyStunBuildup(
             1000, 5000,
             DamageType.Physical,
             AttackType.Melee,
-            _entityId + Guid.NewGuid().ToString());
+            entityId);
     }
 
     [Benchmark]
     public CompleteStunResult CalculateCompleteStun()
     {
+        // Use incrementing counter instead of Guid for consistent benchmarks
+        var entityId = $"{_entityId}_complete_{_counter++}";
         return _calculator.CalculateCompleteStun(
             1000, 5000,
             DamageType.Physical,
             AttackType.Melee,
-            _entityId + Guid.NewGuid().ToString());
+            entityId);
     }
 
     [Benchmark]
