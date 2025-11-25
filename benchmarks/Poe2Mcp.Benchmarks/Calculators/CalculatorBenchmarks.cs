@@ -213,7 +213,7 @@ public class SpiritCalculatorBenchmarks
 public class StunCalculatorBenchmarks
 {
     private StunCalculator _calculator = null!;
-    private string _entityId = "benchmark_entity";
+    private readonly string _entityId = "benchmark_entity";
     private int _counter = 0;
 
     [GlobalSetup]
