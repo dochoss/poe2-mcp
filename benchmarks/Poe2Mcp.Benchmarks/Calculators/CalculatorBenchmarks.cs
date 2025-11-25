@@ -225,7 +225,11 @@ public class StunCalculatorBenchmarks
     [IterationCleanup]
     public void Cleanup()
     {
-        _calculator.RemoveEntity(_entityId);
+        // Remove all tracked entities created during the benchmark iteration
+        foreach (var entityId in _calculator.GetAllTrackedEntities().ToList())
+        {
+            _calculator.RemoveEntity(entityId);
+        }
         _counter = 0;
     }
 
