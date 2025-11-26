@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using Poe2Mcp.Core;
 using Poe2Mcp.Core.AI;
 using Poe2Mcp.Core.Analyzers;
@@ -33,10 +32,10 @@ builder.Logging.AddDebug();
 
 if (useStreamableHttp == true)
 {
-  var port = "5000";
+  var port = "20002";
   (builder as WebApplicationBuilder)!.WebHost.UseUrls($"http://localhost:{port}");
 
-  Console.WriteLine($"Listening on port {port}");
+  Console.WriteLine($"Listening on http://localhost:{port}/poe2mcp");
 }
 
 
@@ -81,7 +80,8 @@ builder.Services.AddHttpClient<IPoeApiClient, PoeApiClient>((serviceProvider, cl
     var options = builder.Configuration.GetSection("PoeApi").Get<PoeApiOptions>()
         ?? new PoeApiOptions();
     client.BaseAddress = new Uri(options.BaseUrl);
-    client.Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds);
+    client.DefaultRequestHeaders.Add("User-Agent", options.UserAgent);
+  client.Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds);
 });
 
 builder.Services.AddHttpClient<IPoeNinjaApiClient, PoeNinjaApiClient>((serviceProvider, client) =>
@@ -100,11 +100,8 @@ builder.Services.AddHttpClient<ITradeApiClient, TradeApiClient>((serviceProvider
     client.Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds);
 });
 
-builder.Services.AddHttpClient<ICharacterFetcher, CharacterFetcher>((serviceProvider, client) =>
-{
-    client.BaseAddress = new Uri("https://www.pathofexile.com/api");
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
+// CharacterFetcher no longer needs its own HttpClient - it uses IPoeApiClient
+builder.Services.AddSingleton<ICharacterFetcher, CharacterFetcher>();
 
 // Register core services
 builder.Services.AddSingleton<ICacheService, CacheService>();

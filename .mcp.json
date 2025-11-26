@@ -2,7 +2,7 @@
   "servers": {
     "PoELocalHttp": {
       "type": "http",
-      "url": "http://localhost:5000/mcp"
+      "url": "http://localhost:20002/poe2mcp/mcp"
     }
   }
 }

@@ -1,5 +1,3 @@
-using System.Net.Http.Json;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Poe2Mcp.Core.Models;
@@ -12,45 +10,24 @@ namespace Poe2Mcp.Core.Services;
 /// </summary>
 public class CharacterFetcher : ICharacterFetcher
 {
-    private readonly HttpClient _httpClient;
     private readonly ILogger<CharacterFetcher> _logger;
     private readonly ICacheService _cacheService;
-    private readonly IRateLimiter _rateLimiter;
     private readonly IPoeNinjaApiClient _ninjaClient;
+    private readonly IPoeApiClient _poeApiClient;
     private readonly CharacterFetcherOptions _options;
-    private readonly JsonSerializerOptions _jsonOptions;
 
     public CharacterFetcher(
-        HttpClient httpClient,
         ILogger<CharacterFetcher> logger,
         ICacheService cacheService,
-        IRateLimiter rateLimiter,
         IPoeNinjaApiClient ninjaClient,
+        IPoeApiClient poeApiClient,
         IOptions<CharacterFetcherOptions> options)
     {
-        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-        _rateLimiter = rateLimiter ?? throw new ArgumentNullException(nameof(rateLimiter));
         _ninjaClient = ninjaClient ?? throw new ArgumentNullException(nameof(ninjaClient));
+        _poeApiClient = poeApiClient ?? throw new ArgumentNullException(nameof(poeApiClient));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-
-        _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        // Configure for ladder API
-        if (_httpClient.BaseAddress == null)
-        {
-            _httpClient.BaseAddress = new Uri("https://www.pathofexile.com/api");
-        }
-
-        if (!_httpClient.DefaultRequestHeaders.Contains("User-Agent"))
-        {
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-        }
     }
 
     /// <inheritdoc/>
@@ -127,23 +104,15 @@ public class CharacterFetcher : ICharacterFetcher
 
         try
         {
-            var baseUrl = $"/ladders/{apiLeague}";
             var topCharacters = new List<LadderEntry>();
 
             // Fetch ladder pages until we have enough characters
             var offset = 0;
             while (topCharacters.Count < limit && offset < 1000)
             {
-                await _rateLimiter.WaitAsync("poe-ladder", cancellationToken);
-
-                var url = $"{baseUrl}?limit=200&offset={offset}";
                 _logger.LogInformation("Fetching ladder page: offset={Offset}", offset);
 
-                var response = await _httpClient.GetAsync(url, cancellationToken);
-                response.EnsureSuccessStatusCode();
-
-                var data = await response.Content.ReadFromJsonAsync<LadderResponse>(_jsonOptions, cancellationToken);
-                var entries = data?.Entries ?? Array.Empty<LadderEntryRaw>();
+                var entries = await _poeApiClient.GetLadderEntriesAsync(apiLeague, 200, offset, cancellationToken);
 
                 if (!entries.Any())
                 {
@@ -152,31 +121,18 @@ public class CharacterFetcher : ICharacterFetcher
 
                 foreach (var entry in entries)
                 {
-                    var charLevel = entry.Character?.Level ?? 0;
-                    var charClass = entry.Character?.Class ?? "";
-
                     // Apply filters
-                    if (charLevel < minLevel)
+                    if (entry.Level < minLevel)
                     {
                         continue;
                     }
 
-                    if (classFilter != null && !charClass.Equals(classFilter, StringComparison.OrdinalIgnoreCase))
+                    if (classFilter != null && !entry.Class.Equals(classFilter, StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }
 
-                    topCharacters.Add(new LadderEntry
-                    {
-                        Account = entry.Account?.Name ?? "",
-                        Character = entry.Character?.Name ?? "",
-                        Level = charLevel,
-                        Class = charClass,
-                        Rank = entry.Rank,
-                        Dead = entry.Dead,
-                        Online = entry.Online,
-                        Experience = entry.Character?.Experience ?? 0
-                    });
+                    topCharacters.Add(entry);
 
                     if (topCharacters.Count >= limit)
                     {
@@ -221,7 +177,6 @@ public class CharacterFetcher : ICharacterFetcher
 
         try
         {
-            var baseUrl = $"/ladders/{apiLeague}";
             var pageSize = _options.LadderPageSize;
             var maxDepth = _options.MaxLadderSearchDepth;
 
@@ -229,14 +184,7 @@ public class CharacterFetcher : ICharacterFetcher
             // Early termination if we get an empty page
             for (var offset = 0; offset < maxDepth; offset += pageSize)
             {
-                await _rateLimiter.WaitAsync("poe-ladder", cancellationToken);
-
-                var url = $"{baseUrl}?limit={pageSize}&offset={offset}";
-                var response = await _httpClient.GetAsync(url, cancellationToken);
-                response.EnsureSuccessStatusCode();
-
-                var data = await response.Content.ReadFromJsonAsync<LadderResponse>(_jsonOptions, cancellationToken);
-                var entries = data?.Entries ?? Array.Empty<LadderEntryRaw>();
+                var entries = await _poeApiClient.GetLadderEntriesAsync(apiLeague, pageSize, offset, cancellationToken);
 
                 // Early termination: if we get no entries, we've reached the end of the ladder
                 if (!entries.Any())
@@ -248,20 +196,19 @@ public class CharacterFetcher : ICharacterFetcher
                 // Search for the character in the ladder
                 foreach (var entry in entries)
                 {
-                    var charName = entry.Character?.Name;
-                    if (string.Equals(charName, characterName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(entry.Character, characterName, StringComparison.OrdinalIgnoreCase))
                     {
                         _logger.LogInformation("Found character {Character} in ladder at rank {Rank}", 
                             characterName, entry.Rank);
 
                         var charData = new CharacterData
                         {
-                            Name = charName ?? characterName,
-                            Level = entry.Character?.Level ?? 0,
-                            Class = entry.Character?.Class ?? "Unknown",
+                            Name = entry.Character,
+                            Level = entry.Level,
+                            Class = entry.Class,
                             League = league,
-                            Account = entry.Account?.Name ?? "",
-                            Experience = entry.Character?.Experience ?? 0,
+                            Account = entry.Account,
+                            Experience = entry.Experience,
                             Rank = entry.Rank,
                             Dead = entry.Dead,
                             Online = entry.Online,
@@ -290,33 +237,5 @@ public class CharacterFetcher : ICharacterFetcher
     private static string NormalizeLeagueName(string league)
     {
         return LeagueNameNormalizer.NormalizeForOfficialApi(league);
-    }
-
-    // Internal models for ladder API responses
-    private class LadderResponse
-    {
-        public LadderEntryRaw[] Entries { get; set; } = Array.Empty<LadderEntryRaw>();
-    }
-
-    private class LadderEntryRaw
-    {
-        public int Rank { get; set; }
-        public bool Dead { get; set; }
-        public bool Online { get; set; }
-        public LadderCharacter? Character { get; set; }
-        public LadderAccount? Account { get; set; }
-    }
-
-    private class LadderCharacter
-    {
-        public string? Name { get; set; }
-        public int Level { get; set; }
-        public string? Class { get; set; }
-        public long Experience { get; set; }
-    }
-
-    private class LadderAccount
-    {
-        public string? Name { get; set; }
     }
 }

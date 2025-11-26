@@ -33,17 +33,18 @@ public class DatabaseOptions
 /// </summary>
 public class PoeApiOptions
 {
-    public string BaseUrl { get; set; } = "https://www.pathofexile.com/api";
+    public string BaseUrl { get; set; } = "https://api.pathofexile.com/";
     public int CacheTtlSeconds { get; set; } = 300; // 5 minutes
     public int RequestTimeoutSeconds { get; set; } = 30;
     public string? ClientId { get; set; }
     public string? ClientSecret { get; set; }
-    
+
     /// <summary>
     /// Realm to use for API calls. Can be: pc (default), xbox, sony, or poe2.
     /// If omitted or "pc", PoE1 PC realm is assumed.
     /// </summary>
     public string? Realm { get; set; } = "poe2";
+    public string UserAgent { get; set; } = $"Poe2-BuildOptimizer-MCP/1.0 (contact: {Environment.GetEnvironmentVariable("POE2_CONTACT_EMAIL")})";
 }
 
 /// <summary>

@@ -29,6 +29,9 @@ public static class HostApplicationBuilderExtensions
 
       var webApp = (builder as WebApplicationBuilder)!.Build();
 
+      // Configure the path base for the application
+      webApp.UsePathBase("/poe2mcp");
+
       // Disable HTTPS redirection in development environment to avoid issues with self-signed certificates
       if (!webApp.Environment.IsDevelopment())
       {
